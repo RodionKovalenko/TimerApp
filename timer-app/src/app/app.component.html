@@ -1,0 +1,25 @@
+<div class="toolbar" role="banner">
+    Stopwatch app
+</div>
+
+<div class="content">
+
+    <p>
+        stopwatch with time interval sound
+    </p>
+
+    <form class="example-form">
+        <mat-form-field class="example-full-width">
+            <mat-label style="width:800px;"> Define time-interval after which sound will appear </mat-label>
+            <input style="width:800px;" matInput placeholder="in minutes">
+        </mat-form-field>
+    </form>
+
+    <button mat-button (click)="onTimerClick($event)" #submitButton> Start Timer </button>
+
+
+    <p>Timer: {{ timerDisplay?.hours}} {{ timerDisplay?.minutes}} {{ timerDisplay?.seconds}} {{ timerDisplay?.milliseconds}}</p>
+
+    <p>Count numbers: <output id="result"></output></p>
+
+</div>
