@@ -22,6 +22,7 @@ export class AppComponent implements OnInit {
     seconds: any
   }
   isResetButtonVisible = false;
+  numberFormatError = false;
 
   buttonState = {
     START_TIMER: 'Start Timer',
@@ -122,7 +123,19 @@ export class AppComponent implements OnInit {
 
     this.setDisplayValues();
 
-    if (parseInt(this.timerDisplay.seconds) % (this.timeIntervalForSound) === 0 && parseInt(this.timerDisplay.seconds) !== 0) {
+    if (isNaN(this.timeIntervalForSound) && !this.numberFormatError) {   
+      this.numberFormatError = true;
+      this.showToastMessage('Wrong number format', 'Please give your number in seconds', 5000);
+      setTimeout(() => {
+        this.numberFormatError = false;
+      }, 5000);  
+    
+    }
+
+    let totalNumberOfSeconds = Number(this.timerDisplay.seconds) + Number((this.timerDisplay.minutes * 60)) + Number((this.timerDisplay.hours * 3600));
+  
+
+    if (!isNaN(this.timeIntervalForSound) && (parseInt(totalNumberOfSeconds.toString()) % (this.timeIntervalForSound)) === 0 && this.timerDisplay.minutes !== 0) {
 
       if (this.audio) {
         this.audio.play();
@@ -132,7 +145,7 @@ export class AppComponent implements OnInit {
           this.audio.currentTime = 0;
         }, 4000);
       }
-    }
+    } 
   };
 
   setDisplayValues() {

@@ -5,7 +5,7 @@ let stoppedTimer = 0;
 requestAnimationFrame(this.requestAnimationFrameFunction.bind(this));
 
 function getTimerValues() {
-  postMessage(timeElapsed);
+    postMessage(timeElapsed);
 }
 
 function timerFunction() {
