@@ -1,5 +1,6 @@
 import { Component, ViewEncapsulation, OnInit, AfterViewInit, ViewChild, SimpleChanges, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import * as NoSleep from 'nosleep.js';
 
 @Component({
   selector: 'app-root',
@@ -7,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./app.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   // total time elapsed after timer was started
   timeElapsed: any;
   // time at which timer was stopped
@@ -15,6 +16,7 @@ export class AppComponent implements OnInit {
   // sound to signal 
   audio: any;
   webWorker: any;
+  noSleep: any;
   // time display on the screen
   timerDisplay: {
     hours: any,
@@ -23,6 +25,7 @@ export class AppComponent implements OnInit {
   }
   isResetButtonVisible = false;
   numberFormatError = false;
+  wakeLock: any;
 
   buttonState = {
     START_TIMER: 'Start Timer',
@@ -36,6 +39,7 @@ export class AppComponent implements OnInit {
   @Input() timeIntervalForSound: any;
 
   constructor(private _snackBar: MatSnackBar) {
+    this.noSleep = new NoSleep();
     this.audio = new Audio('assets/mp3/test.mp3');
     this.timerDisplay = {
       hours: 0,
@@ -55,11 +59,12 @@ export class AppComponent implements OnInit {
       this.startButton._elementRef.nativeElement.innerText = this.buttonState.STOP_TIMER;
       this.isResetButtonVisible = false;
 
-      if (this.audio) {       
+      if (this.audio) {
         setTimeout(() => {
           this.audio.play();
           this.audio.pause();
           this.audio.currentTime = 0;
+          this.noSleep.enable();
         }, 100);
       }
 
@@ -123,19 +128,20 @@ export class AppComponent implements OnInit {
 
     this.setDisplayValues();
 
-    if (isNaN(this.timeIntervalForSound) && !this.numberFormatError) {   
+    if (isNaN(this.timeIntervalForSound) && !this.numberFormatError) {
       this.numberFormatError = true;
       this.showToastMessage('Wrong number format', 'Please give your number in seconds', 5000);
       setTimeout(() => {
         this.numberFormatError = false;
-      }, 5000);  
-    
+      }, 5000);
+
     }
 
     let totalNumberOfSeconds = Number(this.timerDisplay.seconds) + Number((this.timerDisplay.minutes * 60)) + Number((this.timerDisplay.hours * 3600));
-  
 
-    if (!isNaN(this.timeIntervalForSound) && (parseInt(totalNumberOfSeconds.toString()) % (this.timeIntervalForSound)) === 0 && this.timerDisplay.minutes !== 0) {
+
+    if (!isNaN(this.timeIntervalForSound) && (parseInt(totalNumberOfSeconds.toString()) % (this.timeIntervalForSound)) === 0
+      && (this.timerDisplay.minutes !== 0 || (this.timeIntervalForSound < 60 && Math.floor(this.timerDisplay.seconds) !== 0))) {
 
       if (this.audio) {
         this.audio.play();
@@ -145,7 +151,7 @@ export class AppComponent implements OnInit {
           this.audio.currentTime = 0;
         }, 4000);
       }
-    } 
+    }
   };
 
   setDisplayValues() {
@@ -158,8 +164,6 @@ export class AppComponent implements OnInit {
     this.timerDisplay.minutes = minutes % 60;
     this.timerDisplay.hours = hours % 60;
   }
-
-  ngOnInit(): void { }
 
   showToastMessage(title, message, duration) {
     this._snackBar.open(title, message, { duration: duration, direction: 'ltr', verticalPosition: 'top' });
