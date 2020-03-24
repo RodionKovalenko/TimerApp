@@ -9,17 +9,19 @@
     </p>
 
     <form class="example-form">
-        <mat-form-field class="example-full-width">
-            <mat-label style="width:800px;"> Define time-interval after which sound will appear </mat-label>
-            <input style="width:800px;" matInput placeholder="in minutes">
+        <mat-form-field class="example-full-width" style="min-width:350px; text-align: center;">
+            <mat-label> Define time-interval after which sound will appear </mat-label>
+            <input matInput placeholder="in seconds" [(ngModel)]="timeIntervalForSound" ngModel
+                [ngModelOptions]="{standalone: true}">
         </mat-form-field>
     </form>
 
-    <button mat-button (click)="onTimerClick($event)" #submitButton> Start Timer </button>
+    <p>Timer: {{ timerDisplay?.hours}}:
+        {{ timerDisplay?.minutes}}:
+        {{ timerDisplay?.seconds}}
+    </p>
 
-
-    <p>Timer: {{ timerDisplay?.hours}} {{ timerDisplay?.minutes}} {{ timerDisplay?.seconds}} {{ timerDisplay?.milliseconds}}</p>
-
-    <p>Count numbers: <output id="result"></output></p>
+    <button mat-button (click)="onTimerClick($event)" #startButton> Start Timer </button>
+    <button mat-button (click)="onResetTimer($event)" #resetButton *ngIf="this.isResetButtonVisible"> Reset Timer </button>
 
 </div>

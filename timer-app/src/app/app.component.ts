@@ -1,5 +1,5 @@
-import { Component, ViewEncapsulation, OnInit, AfterViewInit, ViewChild, SimpleChanges } from '@angular/core';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { Component, ViewEncapsulation, OnInit, AfterViewInit, ViewChild, SimpleChanges, Input } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-root',
@@ -8,82 +8,87 @@ import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
   encapsulation: ViewEncapsulation.None
 })
 export class AppComponent implements OnInit {
-  title = 'timer-app';
-  timerOldValue: any;
+  // total time elapsed after timer was started
   timeElapsed: any;
-  timerCurrentValue: any;
-  requestAnimationFrame: any;
-  requestAnimationFrameFunction: any;
+  // time at which timer was stopped
   stoppedTimer: any;
+  // sound to signal 
   audio: any;
   webWorker: any;
+  // time display on the screen
   timerDisplay: {
     hours: any,
     minutes: any,
-    seconds: any,
-    milliseconds: any
+    seconds: any
   }
-
-  @ViewChild('submitButton') submitButton;
-
+  isResetButtonVisible = false;
 
   buttonState = {
     START_TIMER: 'Start Timer',
-    STOP_TIMER: 'Stop Timer'
+    STOP_TIMER: 'Stop Timer',
+    RESUME_TIMER: 'Resume Timer',
+    RESET_TIMER: 'Reset Timer'
   }
-  constructor() {
+
+  @ViewChild('startButton') startButton;
+  @ViewChild('resetButton') resetButton;
+  @Input() timeIntervalForSound: any;
+
+  constructor(private _snackBar: MatSnackBar) {
+    this.audio = new Audio('assets/mp3/test.mp3');
     this.timerDisplay = {
       hours: 0,
       minutes: 0,
-      seconds: 0,
-      milliseconds: 0
+      seconds: 0
     }
 
-    this.stoppedTimer = 0;
+    this.stoppedTimer = null;
+    // default time interval for sound 
+    this.timeIntervalForSound = 55;
   }
-
 
   onTimerClick(event: any) {
+    if (this.startButton._elementRef.nativeElement.innerText === this.buttonState.START_TIMER
+      || this.startButton._elementRef.nativeElement.innerText === this.buttonState.RESUME_TIMER) {
 
-    if (this.submitButton._elementRef.nativeElement.innerText === this.buttonState.START_TIMER) {
-      this.submitButton._elementRef.nativeElement.innerText = this.buttonState.STOP_TIMER;
-      if (!this.requestAnimationFrameFunction) {
-        this.requestAnimationFrameFunction = this.getAnimationFrameFunction;
-        this.timerOldValue = performance.now();
+      this.startButton._elementRef.nativeElement.innerText = this.buttonState.STOP_TIMER;
+      this.isResetButtonVisible = false;
 
-        this.startTimeFrame();
-
-        if (!this.audio) {
-          this.audio = new Audio('assets/mp3/test.mp3');
-        }
-
-        this.audio.play();
-
+      if (this.audio) {       
         setTimeout(() => {
+          this.audio.play();
           this.audio.pause();
           this.audio.currentTime = 0;
-
         }, 100);
       }
+
+      this.startWorker();
     }
 
-    else if (this.submitButton._elementRef.nativeElement.innerText === this.buttonState.STOP_TIMER) {
+    else if (this.startButton._elementRef.nativeElement.innerText === this.buttonState.STOP_TIMER
+      || this.startButton._elementRef.nativeElement.innerText === this.buttonState.RESUME_TIMER) {
       this.stoppedTimer = this.timeElapsed;
-      window.cancelAnimationFrame(this.requestAnimationFrame);
-      this.submitButton._elementRef.nativeElement.innerText = this.buttonState.START_TIMER;
-      this.requestAnimationFrameFunction = null;
-      performance.clearMarks();
-      performance.clearResourceTimings();
-      performance.clearMeasures();
+      this.isResetButtonVisible = true;
 
-      setTimeout(() => {
-        this.timeElapsed = this.stoppedTimer;
-        this.setDisplayValues();
-      }, 100);
-
+      if (this.stoppedTimer) {
+        this.startButton._elementRef.nativeElement.innerText === this.buttonState.RESUME_TIMER ?
+          this.startButton._elementRef.nativeElement.innerText = this.buttonState.STOP_TIMER :
+          this.startButton._elementRef.nativeElement.innerText = this.buttonState.RESUME_TIMER;
+      } else {
+        this.startButton._elementRef.nativeElement.innerText = this.buttonState.START_TIMER;
+      }
+      this.terminateWorker();
     }
   }
 
+  onResetTimer(event: any) {
+    this.stoppedTimer = null;
+    this.terminateWorker();
+    this.isResetButtonVisible = false;
+    this.timeElapsed = 0;
+    this.setDisplayValues();
+    this.startButton._elementRef.nativeElement.innerText = this.buttonState.START_TIMER;
+  }
 
   initializeServiceWorker() {
     if (typeof (Worker) !== "undefined") {
@@ -91,64 +96,59 @@ export class AppComponent implements OnInit {
         this.webWorker = new Worker("assets/demo-worker.js");
         console.log('web-worker initialized');
       }
-      this.webWorker.onmessage = function (event) {
-        document.getElementById("result").innerHTML = event.data;
-      };
+      this.webWorker.onmessage = this.onTimerMessageEvent.bind(this);
     } else {
-      document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Workers...";
+      this.showToastMessage('not supported', 'Sorry, your browser does not support Web Workers', 5000);
     }
   }
 
-  stopWorker() {
-    this.webWorker.terminate();
-    this.webWorker = undefined;
+  startWorker() {
+    this.initializeServiceWorker();
   }
 
-
-  startTimeFrame() {
-    this.requestAnimationFrame = window.requestAnimationFrame(this.requestAnimationFrameFunction.bind(this));
-  }
-
-  ngOnInit(): void {
-  }
-
-  getAnimationFrameFunction() {
-    if (!this.timeElapsed) {
-      this.timerOldValue = performance.now();
+  terminateWorker() {
+    if (this.webWorker) {
+      this.webWorker.terminate();
+      this.webWorker = undefined;
     }
+  }
 
-    const currentTime = performance.now();
+  onTimerMessageEvent(event) {
+    this.timeElapsed = event.data;
 
-    this.timeElapsed = currentTime - this.timerOldValue + this.stoppedTimer;
+    if (this.stoppedTimer) {
+      this.timeElapsed += this.stoppedTimer;
+    }
 
     this.setDisplayValues();
 
-    if (parseInt(this.timerDisplay.seconds) % (55) === 0 && parseInt(this.timerDisplay.seconds) !== 0) {
+    if (parseInt(this.timerDisplay.seconds) % (this.timeIntervalForSound) === 0 && parseInt(this.timerDisplay.seconds) !== 0) {
 
       if (this.audio) {
         this.audio.play();
+
         setTimeout(() => {
           this.audio.pause();
           this.audio.currentTime = 0;
-        }, 5000);
+        }, 4000);
       }
     }
-
-    if (this.requestAnimationFrameFunction) {
-      window.requestAnimationFrame(this.requestAnimationFrameFunction.bind(this));
-    }
-  }
-
+  };
 
   setDisplayValues() {
-    let seconds = (this.timeElapsed / 1000).toString();
-    this.timerDisplay.milliseconds = (this.timeElapsed / 1000).toString().split('.')[1].substr(0, 2);
-    this.timerDisplay.seconds = parseInt((this.timeElapsed / 1000).toString().split('.')[0]) % 60;
-    this.timerDisplay.minutes = parseInt((Number(seconds.split('.')[0]) / 60).toString()) % 60;
-    this.timerDisplay.hours = parseInt((Number(seconds.split('.')[0]) / 3600).toString()) % 60;
+    let seconds = this.timeElapsed / 1000;
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+
+    // display seconds together with milliseconds rounded by 2 digits after comma 
+    this.timerDisplay.seconds = (seconds % 60).toFixed(2);
+    this.timerDisplay.minutes = minutes % 60;
+    this.timerDisplay.hours = hours % 60;
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(changes);
+  ngOnInit(): void { }
+
+  showToastMessage(title, message, duration) {
+    this._snackBar.open(title, message, { duration: duration, direction: 'ltr', verticalPosition: 'top' });
   }
 }
