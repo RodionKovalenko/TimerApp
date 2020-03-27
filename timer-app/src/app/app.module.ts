@@ -14,6 +14,9 @@ import { StopwatchComponent } from './stopwatch/stopwatch.component';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatIconModule} from '@angular/material/icon';
 import { AppRoutingModule } from './app-routing.module';
+import {enableProdMode} from '@angular/core';
+
+enableProdMode();
 
 @NgModule({
   declarations: [
