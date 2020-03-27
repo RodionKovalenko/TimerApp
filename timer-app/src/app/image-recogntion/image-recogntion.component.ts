@@ -26,15 +26,6 @@ export class ImageRecogntionComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   async ngOnInit() {
-    this.loading = true;  
-    this.mode = 'indeterminate';
-    this.cocoModel = await cocoSSD.load();
-    this.mode = 'determinate';
-    this.loading = false;
-    this.spinnerValue = 0;
-
-    this.frontCameraActive = true;
-    this.onTurnCamera(null);
   }
 
 
@@ -44,7 +35,14 @@ export class ImageRecogntionComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   async ngAfterViewInit() {
-    
+    this.loading = true;  
+    this.mode = 'indeterminate';
+    this.cocoModel = await cocoSSD.load();
+    this.mode = 'determinate';
+    this.loading = false;
+    this.spinnerValue = 0;
+    this.frontCameraActive = true;
+    this.onTurnCamera(null);    
   }  
 
   startCamera(constraints) {
