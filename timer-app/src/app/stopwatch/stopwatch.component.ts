@@ -1,6 +1,7 @@
 import { Component, ViewEncapsulation, OnInit, AfterViewInit, ViewChild, SimpleChanges, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as noSleep from 'nosleep.js';
+import { CacheRouteReuseStrategyService } from '../cache-route-reuse-strategy.service';
 
 @Component({
   selector: 'app-stopwatch',
@@ -40,19 +41,19 @@ export class StopwatchComponent {
   @ViewChild('timerCmp') timerCmp;
   @Input() timeIntervalForSound: any;
 
-  constructor(private _snackBar: MatSnackBar) {
+  constructor(private _snackBar: MatSnackBar, cachedRoute: CacheRouteReuseStrategyService) {
     this.noSleep = new noSleep();
     this.audio = new Audio('assets/mp3/test.mp3');
-    this.timerDisplay = {
-      hours: 0,
-      minutes: 0,
-      seconds: 0
+    if (!this.timerDisplay) {
+      this.timerDisplay = {
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+      }
     }
-
-    this.stoppedTimer = null;
+   // this.stoppedTimer = null;
     // default time interval for sound 
     this.timeIntervalForSound = 30;
-
   }
 
   onTimerClick(event: any) {

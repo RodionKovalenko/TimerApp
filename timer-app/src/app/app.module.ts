@@ -16,8 +16,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppRoutingModule } from './app-routing.module';
 import { enableProdMode } from '@angular/core';
 import { ImageRecogntionComponent } from './image-recogntion/image-recogntion.component';
-import { Router } from '@angular/router';
+import { Router, RouteReuseStrategy } from '@angular/router';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { CacheRouteReuseStrategyService } from './cache-route-reuse-strategy.service';
 
 enableProdMode();
 
@@ -43,13 +44,16 @@ enableProdMode();
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule
   ],
-  providers: [],
+  providers: [{
+    provide: RouteReuseStrategy,
+    useClass: CacheRouteReuseStrategyService
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule {
 
   constructor(router: Router) {
-    router.navigateByUrl('/', { skipLocationChange: false }).then(() => {
+    router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       router.navigate(['/']);
     });
   }

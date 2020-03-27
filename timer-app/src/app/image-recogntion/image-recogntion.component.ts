@@ -10,7 +10,7 @@ import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
   styleUrls: ['./image-recogntion.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class ImageRecogntionComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ImageRecogntionComponent implements OnInit, AfterViewInit {
   @ViewChild('video') video: ElementRef;
   loading: boolean;
   predictions: any;
@@ -21,26 +21,20 @@ export class ImageRecogntionComponent implements OnInit, OnDestroy, AfterViewIni
   mode: ProgressSpinnerMode = 'determinate';
   spinnerValue = 100;
   
-  constructor() {
-    console.log('initialized');
+  constructor() {  
+
   }
 
-  async ngOnInit() {
+  async ngOnInit() {   
   }
-
-
-  ngOnDestroy(): void {
-    this.video = null;
-    console.log('destroyed');
-  }
-
+  
   async ngAfterViewInit() {
     this.loading = true;  
     this.mode = 'indeterminate';
     this.cocoModel = await cocoSSD.load();
     this.mode = 'determinate';
     this.loading = false;
-    this.spinnerValue = 0;
+    this.spinnerValue = 0;  
     this.frontCameraActive = true;
     this.onTurnCamera(null);    
   }  
@@ -82,6 +76,5 @@ export class ImageRecogntionComponent implements OnInit, OnDestroy, AfterViewIni
     }
     this.frontCameraActive = !this.frontCameraActive;
     this.startCamera(constraints);
-  }
-
+  } 
 }
