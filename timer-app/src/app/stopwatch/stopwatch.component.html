@@ -1,0 +1,21 @@
+<div class="content">
+
+    <p>
+        stopwatch with time interval sound
+    </p>
+
+    <form class="example-form">
+        <mat-form-field class="example-full-width" style="min-width:350px; text-align: center;">
+            <mat-label> Define time-interval after which sound will appear </mat-label>
+            <input matInput placeholder="in seconds" [(ngModel)]="timeIntervalForSound" ngModel [ngModelOptions]="{standalone: true}">
+        </mat-form-field>
+    </form>
+
+    <p #timerCmp style="font-size: 25px;">
+        Timer: {{ timerDisplay?.hours}}:{{ timerDisplay?.minutes}}:{{ timerDisplay?.seconds}}
+    </p>
+
+    <button mat-button (click)="onTimerClick($event)" #startButton> Start Timer </button>
+
+    <button style="margin: 20px;" mat-button (click)="onResetTimer($event)" #resetButton *ngIf="this.isResetButtonVisible"> Reset Timer </button>
+</div>

@@ -1,27 +1,24 @@
 <div class="toolbar" role="banner">
-    Stopwatch app
-</div>
 
-<div class="content">
+    <!-- menu -->
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+        <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item>           
+            <a routerLink="./stopwatch">stopwatch</a>
+        </button>
+        <button mat-menu-item>
+            <span>image recognition</span>
+        </button>
+        <button mat-menu-item>
+            <span>statistics</span>
+        </button>
+    </mat-menu>
 
-    <p>
-        stopwatch with time interval sound
-    </p>
-
-    <form class="example-form">
-        <mat-form-field class="example-full-width" style="min-width:350px; text-align: center;">
-            <mat-label> Define time-interval after which sound will appear </mat-label>
-            <input matInput placeholder="in seconds" [(ngModel)]="timeIntervalForSound" ngModel
-                [ngModelOptions]="{standalone: true}">
-        </mat-form-field>
-    </form>
-
-    <p>Timer: {{ timerDisplay?.hours}}:
-        {{ timerDisplay?.minutes}}:
-        {{ timerDisplay?.seconds}}
-    </p>
-
-    <button mat-button (click)="onTimerClick($event)" #startButton> Start Timer </button>
-    <button mat-button (click)="onResetTimer($event)" #resetButton *ngIf="this.isResetButtonVisible"> Reset Timer </button>
+    <!-- menu title -->
+    {{title}}
 
 </div>
+
+<router-outlet></router-outlet>

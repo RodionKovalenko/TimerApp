@@ -10,10 +10,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { StopwatchComponent } from './stopwatch/stopwatch.component';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatIconModule} from '@angular/material/icon';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    StopwatchComponent
   ],
   imports: [
     BrowserModule,
@@ -25,9 +30,14 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     MatInputModule,
     MatFormFieldModule,
     MatSnackBarModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+    MatMenuModule,
+    MatIconModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    AppRoutingModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+
+ }
