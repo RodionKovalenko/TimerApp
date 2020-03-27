@@ -5,7 +5,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from "@angular/common";
+import { CommonModule, LocationStrategy, HashLocationStrategy } from "@angular/common";
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,7 +17,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { enableProdMode } from '@angular/core';
 import { ImageRecogntionComponent } from './image-recogntion/image-recogntion.component';
 import { Router, RouteReuseStrategy } from '@angular/router';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CacheRouteReuseStrategyService } from './cache-route-reuse-strategy.service';
 
 enableProdMode();
@@ -44,10 +44,16 @@ enableProdMode();
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     AppRoutingModule
   ],
-  providers: [{
-    provide: RouteReuseStrategy,
-    useClass: CacheRouteReuseStrategyService
-  }],
+  providers: [
+    {
+      provide: RouteReuseStrategy,
+      useClass: CacheRouteReuseStrategyService
+    },
+    {
+      provide: LocationStrategy,
+      useClass: HashLocationStrategy
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
