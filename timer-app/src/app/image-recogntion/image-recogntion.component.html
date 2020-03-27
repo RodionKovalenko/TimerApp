@@ -1,0 +1,20 @@
+<div class="content">
+    <div class="list-group">
+        <div class="list-group-item" *ngFor="let item of predictions">
+            {{item.class}} - {{item.score | percent}}
+        </div>
+    </div>
+
+    <button mat-button (click)="onTurnCamera($event)" #turnCamera>
+        <mat-icon>cached</mat-icon>
+   </button>
+
+    <mat-progress-spinner class="example-margin" [color]="color" [mode]="mode" [value]="spinnerValue">
+    </mat-progress-spinner>
+
+    <video autoplay muted width="80%" height="80%" #video></video>
+
+
+
+
+</div>

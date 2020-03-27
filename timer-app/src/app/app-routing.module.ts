@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { StopwatchComponent } from './stopwatch/stopwatch.component';
+import { ImageRecogntionComponent } from './image-recogntion/image-recogntion.component';
 
 
 const routes: Routes = [
-  { path: 'stopwatch', component: StopwatchComponent}
+  { path: 'stopwatch', component: StopwatchComponent },
+  { path: 'image-recognition', component: ImageRecogntionComponent }
 ];
 
 @NgModule({
@@ -13,4 +15,4 @@ const routes: Routes = [
 })
 export class AppRoutingModule {
 
- }
+}

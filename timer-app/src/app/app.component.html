@@ -5,12 +5,16 @@
         <mat-icon>menu</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
-        <button mat-menu-item>           
-            <a routerLink="./stopwatch">stopwatch</a>
-        </button>
-        <button mat-menu-item>
-            <span>image recognition</span>
-        </button>
+        <a routerLink="./stopwatch">
+            <button mat-menu-item>           
+                 stopwatch
+            </button>
+        </a>
+        <a routerLink="./image-recognition">
+            <button mat-menu-item>
+                image recogntion
+            </button>
+        </a>
         <button mat-menu-item>
             <span>statistics</span>
         </button>
