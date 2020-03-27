@@ -3,6 +3,8 @@ import * as cocoSSD from '@tensorflow-models/coco-ssd';
 import { ThemePalette } from '@angular/material/core';
 import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ChangeDetectionStrategy } from '@angular/compiler/src/compiler_facade_interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-image-recogntion',
@@ -10,7 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./image-recogntion.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class ImageRecogntionComponent implements OnInit, AfterViewInit {
+export class ImageRecogntionComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('video') video: ElementRef;
   loading: boolean;
   predictions: any;
@@ -22,15 +24,13 @@ export class ImageRecogntionComponent implements OnInit, AfterViewInit {
   spinnerValue = 100;
   imageRecogntionTimerWorker: any;
   
-  constructor(private _snackBar: MatSnackBar) {  
-
+  constructor(private _snackBar: MatSnackBar, private router: Router) {     
+    router.events.subscribe((event) =>{
+       this.terminateWorker();
+    });
   }
 
   async ngOnInit() {   
-  
-  }
-  
-  async ngAfterViewInit() {
     this.loading = true;  
     this.mode = 'indeterminate';
     this.cocoModel = await cocoSSD.load();
@@ -40,9 +40,13 @@ export class ImageRecogntionComponent implements OnInit, AfterViewInit {
     this.frontCameraActive = true;
     this.onTurnCamera(null);    
     this.initializeServiceWorker();
+  }
+  
+  async ngAfterViewInit() {    
   }  
 
   startCamera(constraints) {
+    this.initializeServiceWorker();
     const vid = this.video.nativeElement;
 
     if (!constraints) {
@@ -73,6 +77,7 @@ export class ImageRecogntionComponent implements OnInit, AfterViewInit {
     this.frontCameraActive = !this.frontCameraActive;
     this.startCamera(constraints);
   } 
+  
   initializeServiceWorker() {
     if (typeof (Worker) !== "undefined") {
       if (typeof (this.imageRecogntionTimerWorker) == "undefined") {
