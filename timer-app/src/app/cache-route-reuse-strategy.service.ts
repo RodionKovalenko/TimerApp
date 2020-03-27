@@ -12,7 +12,7 @@ export class CacheRouteReuseStrategyService  implements RouteReuseStrategy {
   };
   shouldReuseRoute(before: ActivatedRouteSnapshot, curr:  ActivatedRouteSnapshot): boolean {
   if (this.getPath(before) === 'stopwatch' && this.getPath(curr) === 'image-recognition') {    
-      this.allowRetriveCache['image-recognition'] = false;
+      this.allowRetriveCache['image-recognition'] = true;
     } else {
       this.allowRetriveCache['stopwatch'] = true;
     }

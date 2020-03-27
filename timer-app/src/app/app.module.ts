@@ -53,7 +53,7 @@ enableProdMode();
 export class AppModule {
 
   constructor(router: Router) {
-    router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+    router.navigateByUrl('/', { skipLocationChange: false }).then(() => {
       router.navigate(['/']);
     });
   }

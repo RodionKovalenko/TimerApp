@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, OnDestroy, AfterViewInit } from '@angular/core';
 import * as cocoSSD from '@tensorflow-models/coco-ssd';
-
 import { ThemePalette } from '@angular/material/core';
 import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-image-recogntion',
@@ -20,12 +20,14 @@ export class ImageRecogntionComponent implements OnInit, AfterViewInit {
   color: ThemePalette = 'primary';
   mode: ProgressSpinnerMode = 'determinate';
   spinnerValue = 100;
+  imageRecogntionTimerWorker: any;
   
-  constructor() {  
+  constructor(private _snackBar: MatSnackBar) {  
 
   }
 
   async ngOnInit() {   
+  
   }
   
   async ngAfterViewInit() {
@@ -37,6 +39,7 @@ export class ImageRecogntionComponent implements OnInit, AfterViewInit {
     this.spinnerValue = 0;  
     this.frontCameraActive = true;
     this.onTurnCamera(null);    
+    this.initializeServiceWorker();
   }  
 
   startCamera(constraints) {
@@ -54,14 +57,7 @@ export class ImageRecogntionComponent implements OnInit, AfterViewInit {
         })
         .catch((err0r) => {
           console.log('Something went wrong!');
-        });
-
-        setInterval(async () => {
-          this.cocoModel.detect(this.video.nativeElement).then((predictions) => {
-            this.predictions = predictions; 
-          });
-            
-       }, 3000);
+        });       
     }
   }
 
@@ -77,4 +73,36 @@ export class ImageRecogntionComponent implements OnInit, AfterViewInit {
     this.frontCameraActive = !this.frontCameraActive;
     this.startCamera(constraints);
   } 
+  initializeServiceWorker() {
+    if (typeof (Worker) !== "undefined") {
+      if (typeof (this.imageRecogntionTimerWorker) == "undefined") {
+        this.imageRecogntionTimerWorker = new Worker('assets/image-recognition-timer-worker.js');
+        console.log('image worker initialized');
+      }
+      this.imageRecogntionTimerWorker.onmessage = this.onTimerMessageEvent.bind(this);
+    } else {
+      this.showToastMessage('not supported', 'Sorry, your browser does not support Web Workers', 5000);
+    }
+  }
+
+  startWorker() {
+    this.initializeServiceWorker();
+  }
+
+  terminateWorker() {
+    if (this.imageRecogntionTimerWorker) {
+      this.imageRecogntionTimerWorker.terminate();
+      this.imageRecogntionTimerWorker = undefined;
+    }
+  }
+
+  onTimerMessageEvent(event) {
+    this.cocoModel.detect(this.video.nativeElement).then((predictions) => {
+      this.predictions = predictions; 
+    });       
+  };
+
+  showToastMessage(title, message, duration) {
+    this._snackBar.open(title, message, { duration: duration, direction: 'ltr', verticalPosition: 'top' });
+  }
 }
