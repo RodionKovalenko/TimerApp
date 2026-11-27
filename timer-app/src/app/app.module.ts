@@ -24,6 +24,7 @@ import { NoodweerComponent } from './noodweer/noodweer.component';
 import { SterrenpadComponent } from './sterrenpad/sterrenpad.component';
 import { MoestuinComponent } from './moestuin/moestuin.component';
 import { WoordwachtComponent } from './woordwacht/woordwacht.component';
+import { KerstkofferComponent } from './kerstkoffer/kerstkoffer.component';
 
 enableProdMode();
 
@@ -36,7 +37,8 @@ enableProdMode();
     NoodweerComponent,
     SterrenpadComponent,
     MoestuinComponent,
-    WoordwachtComponent
+    WoordwachtComponent,
+    KerstkofferComponent
   ],
   imports: [
     BrowserModule,

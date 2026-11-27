@@ -1,0 +1,131 @@
+<div class="kk">
+
+    <!-- ===================================================== intro -->
+    <div class="paper" *ngIf="!progress.started">
+        <h1>{{ intro.title }}</h1>
+        <p class="sub">Een escaperoom voor twee, ongeveer 30 tot 60 minuten.</p>
+        <p *ngFor="let t of intro.text">{{ t }}</p>
+        <ul class="howto">
+            <li>Speel samen op één scherm en overleg hardop.</li>
+            <li>Pen en papier zijn handig.</li>
+            <li>Vast? Elk slot heeft drie hints, steeds iets duidelijker.</li>
+            <li>Jullie voortgang wordt bewaard, ook als je de pagina sluit.</li>
+        </ul>
+        <button type="button" class="primary big" (click)="start()">Open de envelop</button>
+    </div>
+
+    <ng-container *ngIf="progress.started">
+        <!-- ===================================================== status -->
+        <div class="status">
+            <div class="locks" aria-label="Sloten">
+                <span *ngFor="let c of chapters; let i = index" class="lock" [class.open]="isOpen(i)"
+                      [class.cur]="i === progress.solved" [title]="c.title">{{ isOpen(i) ? '🔓' : '🔒' }}</span>
+            </div>
+            <div class="letters">
+                <span *ngFor="let l of letters" class="letter">{{ l }}</span>
+                <span *ngIf="!letters.length" class="muted">nog geen letters</span>
+            </div>
+            <div class="time">⏱ {{ elapsed }}</div>
+        </div>
+
+        <!-- ===================================================== chapter -->
+        <ng-container *ngIf="chapter">
+            <div class="found" *ngIf="lastSolvedText">✨ {{ lastSolvedText }}</div>
+
+            <div class="paper">
+                <h2>{{ chapter.title }}</h2>
+                <p>{{ chapter.story }}</p>
+
+                <ng-container [ngSwitch]="chapter.id">
+
+                    <div *ngSwitchCase="'trein'" class="timetable">
+                        <div>
+                            <h4>Amersfoort → Arnhem</h4>
+                            <table>
+                                <tr><th>vertrek</th><th>aankomst</th></tr>
+                                <tr *ngFor="let t of trainsToArnhem"><td>{{ t[0] }}</td><td>{{ t[1] }}</td></tr>
+                            </table>
+                        </div>
+                        <div>
+                            <h4>Arnhem → Essen</h4>
+                            <table>
+                                <tr><th>vertrek</th><th>aankomst</th></tr>
+                                <tr *ngFor="let t of trainsToEssen"><td>{{ t[0] }}</td><td>{{ t[1] }}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div *ngSwitchCase="'kaarsen'">
+                        <svg viewBox="0 0 350 130" class="candles" role="img" aria-label="Een rij kaarsen">
+                            <g *ngFor="let lit of candles; let i = index" [attr.transform]="'translate(' + (25 + i * 50) + ',0)'">
+                                <ellipse *ngIf="lit" cx="0" cy="38" rx="8" ry="16" class="flame"></ellipse>
+                                <ellipse *ngIf="lit" cx="0" cy="42" rx="3.5" ry="8" class="flame-core"></ellipse>
+                                <line x1="0" y1="52" x2="0" y2="60" class="wick"></line>
+                                <path *ngIf="!lit" d="M0,48 q6,-10 0,-20 q-6,-10 2,-20" class="smoke"></path>
+                                <rect x="-11" y="60" width="22" height="62" rx="3" class="wax"></rect>
+                            </g>
+                        </svg>
+                        <p class="cipher">PTUUJQUTTWY</p>
+                        <div class="alphabet"><span *ngFor="let a of alphabet">{{ a }}</span></div>
+                    </div>
+
+                    <ul *ngSwitchCase="'cadeaus'" class="clues">
+                        <li *ngFor="let c of giftClues">{{ c }}</li>
+                    </ul>
+
+                    <div *ngSwitchCase="'mijn'" class="mine">
+                        <div class="shaft">
+                            <div class="floor top">?</div>
+                            <div class="floor" *ngFor="let n of mineNumbers.slice().reverse()">{{ n }}</div>
+                        </div>
+                    </div>
+
+                    <div *ngSwitchCase="'kaart'" class="map">
+                        <div class="grid">
+                            <div class="row" *ngFor="let row of letterGrid; let r = index">
+                                <span *ngFor="let ch of row; let c = index" [class.start]="isStart(r, c)">
+                                    {{ ch }}<i *ngIf="isStart(r, c)">★</i>
+                                </span>
+                            </div>
+                        </div>
+                        <ol class="steps"><li *ngFor="let s of gridSteps">{{ s }}</li></ol>
+                    </div>
+
+                    <div *ngSwitchCase="'finale'" class="final-letters">
+                        <span *ngFor="let l of letters" class="letter big">{{ l }}</span>
+                    </div>
+                </ng-container>
+
+                <form class="answer" (ngSubmit)="submit()" [class.shake]="shake">
+                    <label>{{ chapter.question }}</label>
+                    <div class="row">
+                        <input type="text" [placeholder]="chapter.placeholder" [value]="answer"
+                               (input)="answer = $event.target.value; feedback = ''" autocomplete="off" autocapitalize="off">
+                        <button type="submit" class="primary">Probeer</button>
+                    </div>
+                    <p class="feedback" *ngIf="feedback">{{ feedback }}</p>
+                </form>
+            </div>
+
+            <div class="hints">
+                <div class="hint" *ngFor="let h of chapter.hints.slice(0, hintsShown); let i = index">
+                    <b>Hint {{ i + 1 }}{{ i === chapter.hints.length - 1 ? ' (oplossing)' : '' }}:</b> {{ h }}
+                </div>
+                <button type="button" class="link" *ngIf="hintsShown < chapter.hints.length" (click)="showHint()">
+                    🦉 {{ hintsShown === chapter.hints.length - 1 ? 'Toon de oplossing' : 'Vraag de Kerstuil om hint ' + (hintsShown + 1) }}
+                </button>
+            </div>
+        </ng-container>
+
+        <!-- ===================================================== ending -->
+        <div class="paper ending" *ngIf="finished">
+            <div class="big-icon">🎁</div>
+            <p *ngFor="let t of ending; let i = index" [class.quote]="i === 2">{{ t }}</p>
+            <p class="stats">Tijd: <b>{{ elapsed }}</b> · hints: <b>{{ totalHints }}</b> · foute pogingen: <b>{{ progress.wrong }}</b></p>
+        </div>
+
+        <div class="footer-links">
+            <button type="button" class="link" (click)="restart()">Opnieuw beginnen</button>
+        </div>
+    </ng-container>
+</div>

@@ -1,0 +1,411 @@
+:host {
+  --bg: #2b1d14;
+  --paper: #fbf3e1;
+  --ink: #3a2a1c;
+  --muted: #8a7560;
+  --line: #e3d3b4;
+  --accent: #a3322a;
+  --gold: #d8a93b;
+  display: block;
+  min-height: 100vh;
+  padding: 72px 12px 32px;
+  box-sizing: border-box;
+  background: radial-gradient(circle at 50% 0, #4a3223 0, var(--bg) 70%);
+  color: var(--ink);
+  font: 16px Georgia, "Times New Roman", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.kk {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.primary {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-family: system-ui, sans-serif;
+}
+
+.big {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.link {
+  background: none;
+  border: 0;
+  color: var(--gold);
+  padding: 8px 4px;
+  font-family: system-ui, sans-serif;
+}
+
+.paper {
+  background: var(--paper);
+  border-radius: 6px;
+  padding: 20px 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+  line-height: 1.55;
+}
+
+.paper h1,
+.paper h2 {
+  margin: 0 0 8px;
+  color: var(--accent);
+}
+
+.sub {
+  color: var(--muted);
+  margin-top: 0;
+  font-style: italic;
+}
+
+.howto {
+  font: 14px system-ui, sans-serif;
+  line-height: 1.6;
+  padding-left: 20px;
+}
+
+/* ---------------------------------------------------------- status */
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--paper);
+  font-family: system-ui, sans-serif;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.locks {
+  display: flex;
+  gap: 2px;
+  font-size: 18px;
+}
+
+.lock {
+  opacity: .45;
+}
+
+.lock.open,
+.lock.cur {
+  opacity: 1;
+}
+
+.letters {
+  display: flex;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--accent);
+  font: 700 15px Georgia, serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
+}
+
+.letter.big {
+  width: 48px;
+  height: 56px;
+  font-size: 28px;
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+}
+
+.found {
+  background: rgba(216, 169, 59, .18);
+  border: 1px solid var(--gold);
+  color: var(--paper);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+/* ---------------------------------------------------------- puzzles */
+
+.timetable {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-family: "Courier New", monospace;
+}
+
+.timetable h4 {
+  margin: 6px 0;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.timetable table {
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.timetable th,
+.timetable td {
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  text-align: center;
+}
+
+.timetable th {
+  font: 12px system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.candles {
+  width: 100%;
+  max-width: 420px;
+  display: block;
+  margin: 6px auto;
+}
+
+.flame {
+  fill: #ffb72b;
+}
+
+.flame-core {
+  fill: #fff3b0;
+}
+
+.wick {
+  stroke: #3a2a1c;
+  stroke-width: 2;
+}
+
+.smoke {
+  fill: none;
+  stroke: #b9ad9c;
+  stroke-width: 1.5;
+}
+
+.wax {
+  fill: #c8423a;
+}
+
+.cipher {
+  text-align: center;
+  font: 700 26px "Courier New", monospace;
+  letter-spacing: 4px;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+
+.alphabet {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+  font: 13px "Courier New", monospace;
+}
+
+.alphabet span {
+  width: 20px;
+  text-align: center;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.clues {
+  background: #fff;
+  border: 1px dashed var(--line);
+  padding: 12px 12px 12px 30px;
+  font-style: italic;
+}
+
+.mine {
+  display: flex;
+  justify-content: center;
+}
+
+.shaft {
+  border: 4px solid #5b4636;
+  border-top-width: 10px;
+  width: 120px;
+  background: repeating-linear-gradient(45deg, transparent, transparent 8px, rgba(91, 70, 54, .15) 8px, rgba(91, 70, 54, .15) 10px);
+}
+
+.floor {
+  border-bottom: 3px solid #5b4636;
+  text-align: center;
+  padding: 6px 0;
+  font: 700 22px "Courier New", monospace;
+}
+
+.floor.top {
+  color: var(--accent);
+}
+
+.map {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.grid {
+  display: inline-block;
+  border: 2px solid var(--ink);
+  background: #fff;
+}
+
+.grid .row {
+  display: flex;
+}
+
+.grid span {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  font: 700 20px "Courier New", monospace;
+}
+
+.grid span.start {
+  background: #fff1c4;
+}
+
+.grid span i {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-size: 11px;
+  font-style: normal;
+  color: var(--accent);
+}
+
+.steps {
+  font: 15px system-ui, sans-serif;
+  padding-left: 22px;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.final-letters {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+/* ---------------------------------------------------------- answer + hints */
+
+.answer {
+  margin-top: 18px;
+  border-top: 1px dashed var(--line);
+  padding-top: 12px;
+}
+
+.answer label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.answer .row {
+  display: flex;
+  gap: 8px;
+}
+
+.answer input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 2px solid var(--line);
+  background: #fff;
+  font: 18px "Courier New", monospace;
+  text-transform: uppercase;
+}
+
+.feedback {
+  color: var(--accent);
+  margin: 8px 0 0;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.shake {
+  animation: shake .4s;
+}
+
+@keyframes shake {
+  20%, 60% {
+    transform: translateX(-6px);
+  }
+  40%, 80% {
+    transform: translateX(6px);
+  }
+}
+
+.hints {
+  margin-bottom: 12px;
+}
+
+.hint {
+  background: rgba(251, 243, 225, .1);
+  border-left: 3px solid var(--gold);
+  color: var(--paper);
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  font: 14px system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+.ending {
+  text-align: center;
+}
+
+.big-icon {
+  font-size: 54px;
+}
+
+.quote {
+  font-size: 20px;
+  font-style: italic;
+  color: var(--accent);
+}
+
+.stats {
+  font: 14px system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+}
