@@ -20,6 +20,7 @@ import { Router, RouteReuseStrategy } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CacheRouteReuseStrategyService } from './cache-route-reuse-strategy.service';
 import { QuestionsComponent } from './questions/questions.component';
+import { NoodweerComponent } from './noodweer/noodweer.component';
 
 enableProdMode();
 
@@ -28,7 +29,8 @@ enableProdMode();
     AppComponent,
     StopwatchComponent,
     ImageRecogntionComponent,
-    QuestionsComponent
+    QuestionsComponent,
+    NoodweerComponent
   ],
   imports: [
     BrowserModule,

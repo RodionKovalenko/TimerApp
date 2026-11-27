@@ -1,0 +1,239 @@
+<div class="nw">
+
+    <!-- ===================================================== setup -->
+    <div class="setup" *ngIf="!game">
+        <h1>Noodweer</h1>
+        <p class="lead">
+            Een coöperatief spel voor 2 tot 4 spelers op één apparaat. Hoogwater, brand, storm en
+            ijzel trekken over de Lage Landen en het Ruhrgebied. Werk samen, bouw hulpposten en
+            bedwing alle vier de soorten noodweer voordat het uit de hand loopt.
+        </p>
+
+        <div class="field">
+            <span class="label">Aantal spelers</span>
+            <div class="seg">
+                <button *ngFor="let n of [2, 3, 4]" type="button" [class.on]="setupPlayers === n"
+                        (click)="setupPlayers = n">{{ n }}</button>
+            </div>
+        </div>
+
+        <div class="field" *ngFor="let i of [0, 1, 2, 3].slice(0, setupPlayers); trackBy: trackByIndex">
+            <span class="label">
+                <span class="pawn" [style.background]="pawnColors[i]"></span>
+                Speler {{ i + 1 }} <small>start in {{ i % 2 === 0 ? 'Essen' : 'Amersfoort' }}</small>
+            </span>
+            <input type="text" maxlength="14" [placeholder]="'Speler ' + (i + 1)"
+                   [value]="setupNames[i]" (input)="setupNames[i] = $event.target.value">
+        </div>
+
+        <div class="field">
+            <span class="label">Moeilijkheid</span>
+            <div class="seg">
+                <button type="button" [class.on]="setupEpidemics === 4" (click)="setupEpidemics = 4">Rustig</button>
+                <button type="button" [class.on]="setupEpidemics === 5" (click)="setupEpidemics = 5">Normaal</button>
+                <button type="button" [class.on]="setupEpidemics === 6" (click)="setupEpidemics = 6">Zwaar</button>
+            </div>
+            <small class="muted">{{ setupEpidemics }} noodweerkaarten in de stapel</small>
+        </div>
+
+        <button type="button" class="primary big" (click)="start()">Spel starten</button>
+        <button type="button" class="link" (click)="showRules = !showRules">
+            {{ showRules ? 'Spelregels verbergen' : 'Spelregels lezen' }}
+        </button>
+        <ng-container *ngIf="showRules"><ng-container *ngTemplateOutlet="rulesTpl"></ng-container></ng-container>
+    </div>
+
+    <!-- ===================================================== game -->
+    <ng-container *ngIf="game">
+
+        <div class="status">
+            <div class="turn-info">
+                <span class="pawn big" [style.background]="pawnColors[game.current]"></span>
+                <div>
+                    <b>{{ current.name }}</b> is aan de beurt
+                    <div class="dots" title="Acties over">
+                        <span *ngFor="let on of actionDots()" [class.on]="on"></span>
+                        <small>{{ game.actionsLeft }} {{ game.actionsLeft === 1 ? 'actie' : 'acties' }}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="stats">
+                <div title="Bij {{ maxOutbreaks }} uitbraken is het spel verloren">
+                    <small>Uitbraken</small>
+                    <b [class.danger]="game.outbreaks >= maxOutbreaks - 2">{{ game.outbreaks }}/{{ maxOutbreaks }}</b>
+                </div>
+                <div title="Zoveel steden worden aan het einde van elke beurt getroffen">
+                    <small>Dreiging</small><b>{{ rate }}</b>
+                </div>
+                <div title="Is de stapel leeg, dan is het spel verloren">
+                    <small>Stapel</small><b>{{ game.playerDeck.length }}</b>
+                </div>
+                <div><small>Beurt</small><b>{{ game.turn }}</b></div>
+            </div>
+        </div>
+
+        <div class="threats">
+            <div class="threat" *ngFor="let c of colors" [class.done]="game.cured[c]">
+                <span class="cube" [style.background]="threats[c].hex"></span>
+                <span class="tname">{{ threats[c].name }}</span>
+                <span class="tstate">
+                    <ng-container *ngIf="game.eradicated[c]">verdwenen ★</ng-container>
+                    <ng-container *ngIf="game.cured[c] && !game.eradicated[c]">bedwongen ✓ · </ng-container>
+                    <ng-container *ngIf="!game.eradicated[c]">{{ game.supply[c] }} over</ng-container>
+                </span>
+            </div>
+        </div>
+
+        <div class="map-wrap" #mapWrap>
+            <svg [attr.viewBox]="'0 0 ' + width + ' ' + height" class="map" role="img" aria-label="Kaart">
+                <rect [attr.width]="width" [attr.height]="height" class="sea"></rect>
+                <text x="60" y="150" class="sea-label">Noordzee</text>
+
+                <line *ngFor="let e of edges" [attr.x1]="e.a.x" [attr.y1]="e.a.y" [attr.x2]="e.b.x" [attr.y2]="e.b.y"
+                      class="edge" [class.special]="e.special"></line>
+
+                <g *ngFor="let c of cities" class="city" [attr.transform]="'translate(' + c.x + ',' + c.y + ')'"
+                   [class.sel]="selected === c.id" [class.reach]="reachable(c.id)" (click)="select(c.id)">
+                    <circle r="24" class="hit"></circle>
+                    <circle r="17" class="ring"></circle>
+                    <circle r="11" class="dot" [style.fill]="threats[c.color].hex"></circle>
+                    <path *ngIf="hasStation(c.id)" d="M-30,-2 l8,-8 l8,8 v9 h-16 z" class="station"></path>
+                    <rect *ngFor="let k of cubesOf(c.id); let i = index; let n = count"
+                          [attr.x]="-n * 6 + i * 12 + 1" y="-34" width="10" height="10" rx="2"
+                          class="cubebox" [style.fill]="threats[k].hex"></rect>
+                    <circle *ngFor="let pi of playersIn(c.id); let i = index"
+                            [attr.cx]="18 + i * 11" cy="10" r="7" class="pawn-dot" [style.fill]="pawnColors[pi]"></circle>
+                    <text y="32" class="label">{{ c.name }}</text>
+                </g>
+            </svg>
+        </div>
+
+        <!-- discard prompt -->
+        <div class="panel warn" *ngIf="game.phase === 'discard'">
+            <b>{{ game.players[game.discardPlayer].name }}</b> heeft te veel kaarten
+            (maximaal {{ handLimit }}). Tik hieronder op een kaart om die af te leggen.
+        </div>
+
+        <!-- selected city + actions -->
+        <div class="panel" *ngIf="game.phase === 'actions' && selectedCity">
+            <div class="city-head">
+                <span class="cube" [style.background]="threats[selectedCity.color].hex"></span>
+                <b>{{ selectedCity.name }}</b>
+                <span class="muted" *ngIf="hasStation(selectedCity.id)">&nbsp;· hulppost</span>
+                <span class="muted" *ngIf="selectedCity.id === current.city">&nbsp;· hier sta je</span>
+            </div>
+            <div class="options" *ngIf="options.length; else noOpt">
+                <button type="button" *ngFor="let o of options" (click)="dispatch(o.action)">
+                    {{ o.label }} <small *ngIf="o.hint">{{ o.hint }}</small>
+                </button>
+            </div>
+            <ng-template #noOpt><p class="muted">{{ noOptionsHint }}</p></ng-template>
+        </div>
+
+        <div class="toolbar">
+            <button type="button" (click)="undo()" [disabled]="!history.length || over">↶ Ongedaan maken</button>
+            <button type="button" class="primary" (click)="dispatch({ type: 'PASS' })"
+                    [disabled]="game.phase !== 'actions'">Beurt beëindigen</button>
+        </div>
+
+        <!-- hands -->
+        <div class="hands">
+            <div class="hand" *ngFor="let p of game.players; let i = index"
+                 [class.active]="i === game.current" [class.must]="game.phase === 'discard' && i === game.discardPlayer">
+                <div class="hand-head">
+                    <span class="pawn" [style.background]="pawnColors[i]"></span>
+                    <b>{{ p.name }}</b>
+                    <span class="muted">in {{ cities[p.city].name }} · {{ p.hand.length }} kaarten</span>
+                </div>
+                <div class="cards">
+                    <button type="button" *ngFor="let card of sortedHand(p.hand)" class="card"
+                            [style.borderColor]="cardColor(card)"
+                            [disabled]="!(game.phase === 'discard' && i === game.discardPlayer)"
+                            (click)="dispatch({ type: 'DISCARD', card: card })">
+                        <span class="cube" [style.background]="cardColor(card)"></span>{{ cardName(card) }}
+                    </button>
+                    <span class="muted" *ngIf="!p.hand.length">geen kaarten</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- last turn -->
+        <div class="panel small" *ngIf="game.lastDrawn.length || game.lastInfected.length">
+            <div *ngIf="game.lastDrawn.length">
+                <span class="muted">Laatst getrokken:</span>
+                <span *ngFor="let c of game.lastDrawn" class="tag" [class.epi]="c === EPIDEMIC">{{ cardName(c) }}</span>
+            </div>
+            <div *ngIf="game.lastInfected.length">
+                <span class="muted">{{ game.turn === 1 && !game.lastDrawn.length ? 'Startsituatie:' : 'Getroffen:' }}</span>
+                {{ game.lastInfected.join(', ') }}
+            </div>
+            <div class="muted">
+                Nog {{ epidemicsLeft }} noodweerkaart(en) in de stapel · nog ± {{ turnsLeft }} beurten ·
+                hulpposten {{ game.stations.length }}/{{ maxStations }}
+            </div>
+        </div>
+
+        <div class="footer-links">
+            <button type="button" class="link" (click)="showLog = !showLog">{{ showLog ? 'Logboek verbergen' : 'Logboek' }}</button>
+            <button type="button" class="link" (click)="showRules = !showRules">{{ showRules ? 'Spelregels verbergen' : 'Spelregels' }}</button>
+            <button type="button" class="link" (click)="quit()">Nieuw spel</button>
+        </div>
+        <ol class="log" *ngIf="showLog">
+            <li *ngFor="let l of game.log">{{ l }}</li>
+        </ol>
+        <ng-container *ngIf="showRules"><ng-container *ngTemplateOutlet="rulesTpl"></ng-container></ng-container>
+
+        <!-- end screen -->
+        <div class="overlay" *ngIf="over">
+            <div class="end">
+                <h2>{{ game.phase === 'won' ? 'Gewonnen! 🎉' : 'Verloren' }}</h2>
+                <p>{{ game.endReason }}</p>
+                <p class="muted">Beurt {{ game.turn }} · {{ game.outbreaks }} uitbraken</p>
+                <button type="button" class="primary big" (click)="quit()">Nieuw spel</button>
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-template #rulesTpl>
+        <div class="rules">
+            <h3>Doel</h3>
+            <p>Bedwing alle vier de soorten noodweer: hoogwater, brand, storm en ijzel. Jullie winnen samen of verliezen samen.</p>
+
+            <h3>Jouw beurt</h3>
+            <ol>
+                <li><b>4 acties</b> uitvoeren (zie hieronder). Je mag ook eerder stoppen.</li>
+                <li><b>2 stadskaarten</b> trekken. Meer dan {{ handLimit }} kaarten? Dan leg je af.</li>
+                <li><b>Noodweer</b>: er worden zoveel steden getroffen als de dreiging aangeeft. Elke getroffen stad krijgt een blokje van haar kleur.</li>
+            </ol>
+
+            <h3>Acties</h3>
+            <ul>
+                <li><b>Rijden</b> naar een verbonden stad.</li>
+                <li><b>Vliegen</b>: leg de kaart van de bestemming af.</li>
+                <li><b>Charter</b>: leg de kaart van je eigen stad af en ga waarheen je wilt.</li>
+                <li><b>Pendelen</b> van hulppost naar hulppost.</li>
+                <li><b>Hulppost bouwen</b>: leg de kaart van je eigen stad af (max. {{ maxStations }}).</li>
+                <li><b>Herstellen</b>: haal 1 blokje weg in je stad. Is die soort bedwongen, dan alle blokjes van die kleur.</li>
+                <li><b>Kaart geven of nemen</b>: allebei in dezelfde stad, en het moet de kaart van die stad zijn.</li>
+                <li><b>Bedwingen</b>: in een hulppost {{ rules.cardsToCure }} kaarten van dezelfde kleur afleggen.</li>
+            </ul>
+
+            <h3>Uitbraken</h3>
+            <p>Krijgt een stad een vierde blokje, dan breekt het noodweer uit: elke verbonden stad krijgt een blokje.
+                Dat kan doorketenen, maar per kettingreactie breekt elke stad maar één keer uit.</p>
+
+            <h3>Noodweer!-kaart</h3>
+            <p>De dreiging stijgt, de onderste stad van de dreigingsstapel krijgt 3 blokjes, en de al getroffen steden
+                worden geschud en bovenop de stapel gelegd. Die komen dus snel weer terug.</p>
+
+            <h3>Verloren als…</h3>
+            <ul>
+                <li>er {{ maxOutbreaks }} uitbraken zijn geweest,</li>
+                <li>er van een kleur geen blokjes meer over zijn ({{ rules.cubesPerColor }} per kleur),</li>
+                <li>de stapel stadskaarten op is.</li>
+            </ul>
+            <p class="muted">Een bedwongen soort zonder blokjes op de kaart is voorgoed verdwenen en komt niet meer terug.
+                De stippellijn tussen Essen en Amersfoort is natuurlijk geen toeval.</p>
+        </div>
+    </ng-template>
+</div>
