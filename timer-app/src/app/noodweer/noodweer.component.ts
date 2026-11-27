@@ -141,7 +141,15 @@ export class NoodweerComponent {
     return this.game.players[this.game.current];
   }
 
-  get selectedCity(): City {
+  /** Name of the other player, used in the rules example about trading cards. */
+  get otherName(): string {
+    if (this.game && this.game.players.length > 1) {
+      return this.game.players[(this.game.current + 1) % this.game.players.length].name;
+    }
+    return this.setupNames[1].trim() || 'je medespeler';
+  }
+
+    get selectedCity(): City {
     return this.selected >= 0 ? CITIES[this.selected] : null;
   }
 
@@ -177,7 +185,7 @@ export class NoodweerComponent {
     for (const c of this.colors) {
       if (canTreat(s, c)) {
         out.push({
-          label: 'Herstel ' + THREATS[c].short,
+          label: 'Ruim ' + THREATS[c].short + ' op',
           hint: s.cured[c] ? 'alle blokjes, want bedwongen' : '1 blokje',
           action: { type: 'TREAT', color: c }
         });

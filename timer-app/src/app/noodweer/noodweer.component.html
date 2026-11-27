@@ -196,44 +196,84 @@
 
     <ng-template #rulesTpl>
         <div class="rules">
-            <h3>Doel</h3>
-            <p>Bedwing alle vier de soorten noodweer: hoogwater, brand, storm en ijzel. Jullie winnen samen of verliezen samen.</p>
+            <h3>Het idee in drie zinnen</h3>
+            <p>Op een landkaart duikt in steden noodweer op: hoogwater, brand, storm en ijzel.
+                Jullie reizen samen als hulpverleners door de steden en ruimen de schade op.
+                Tegelijk verzamelen jullie kaarten om het noodweer voorgoed te bedwingen, voordat alles uit de hand loopt.</p>
 
-            <h3>Jouw beurt</h3>
-            <ol>
-                <li><b>4 acties</b> uitvoeren (zie hieronder). Je mag ook eerder stoppen.</li>
-                <li><b>2 stadskaarten</b> trekken. Meer dan {{ handLimit }} kaarten? Dan leg je af.</li>
-                <li><b>Noodweer</b>: er worden zoveel steden getroffen als de dreiging aangeeft. Elke getroffen stad krijgt een blokje van haar kleur.</li>
-            </ol>
-
-            <h3>Acties</h3>
+            <h3>Wat ligt er op tafel?</h3>
             <ul>
-                <li><b>Rijden</b> naar een verbonden stad.</li>
-                <li><b>Vliegen</b>: leg de kaart van de bestemming af.</li>
+                <li>Een <b>landkaart</b> met steden, verbonden door lijnen.</li>
+                <li><b>Blokjes</b> in vier kleuren. Elke kleur is een soort noodweer. Een blokje in een stad betekent: daar is schade.</li>
+                <li><b>Stadskaarten</b>: dat is jullie gereedschap. Elke kaart hoort bij een stad en heeft de kleur van die stad.</li>
+                <li>Een <b>dreigingsstapel</b>: die bepaalt welke stad als volgende getroffen wordt.</li>
+            </ul>
+
+            <h3>Een beurt, als klein verhaal</h3>
+            <p>Je staat in Essen. Daar liggen 2 rode blokjes (brand).</p>
+            <ol>
+                <li><b>Je komt in actie (4 acties):</b>
+                    <ul>
+                        <li>Actie 1: je ruimt op, en Essen heeft nog maar 1 blokje.</li>
+                        <li>Actie 2: je ruimt nog een keer op, en Essen is schoon.</li>
+                        <li>Actie 3: je rijdt over een lijn naar Düsseldorf.</li>
+                        <li>Actie 4: je ruimt in Düsseldorf een blokje op.</li>
+                    </ul>
+                </li>
+                <li><b>Je trekt 2 stadskaarten</b> op hand. Dat is je beloning.</li>
+                <li><b>Het noodweer slaat terug:</b> van de dreigingsstapel worden kaarten omgedraaid, bijvoorbeeld
+                    ‘Amersfoort’. Amersfoort krijgt een blokje.</li>
+            </ol>
+            <p>Dan is de ander aan de beurt. Meer gebeurt er niet: in actie komen, kaarten trekken, het noodweer slaat terug.</p>
+
+            <h3>Hoe winnen jullie?</h3>
+            <p>Verzamel {{ rules.cardsToCure }} kaarten van dezelfde kleur, bijvoorbeeld {{ rules.cardsToCure }} blauwe.
+                Ga daarmee naar een stad met een hulppost (⌂) en leg ze af. Daarmee is het hoogwater bedwongen.
+                Lukt dat met alle 4 de kleuren, dan hebben jullie gewonnen.</p>
+            <p>Daarom ruilen jullie kaarten: jij hebt 2 blauwe kaarten, {{ otherName }} heeft er 1.
+                Jullie ontmoeten elkaar in dezelfde stad, {{ otherName }} geeft je die kaart, en jij hebt er 3.</p>
+            <p class="muted">Let op: je kunt alleen de kaart geven of nemen van de stad waar jullie samen staan.
+                Staan jullie in Utrecht, dan dus alleen de kaart ‘Utrecht’.</p>
+
+            <h3>Hoe verliezen jullie?</h3>
+            <p>Het probleem is dat noodweer zich verspreidt. Heeft een stad al 3 blokjes en moet er een vierde bij,
+                dan slaat het noodweer over: elke buurstad krijgt een blokje. Dat heet een <b>uitbraak</b>.
+                Heeft zo’n buurstad zelf al 3 blokjes, dan breekt het daar ook uit, maar elke stad breekt per
+                kettingreactie maar één keer uit.</p>
+            <p>Jullie verliezen als een van deze dingen gebeurt:</p>
+            <ul>
+                <li>er zijn {{ maxOutbreaks }} uitbraken geweest,</li>
+                <li>de blokjes van een kleur zijn op ({{ rules.cubesPerColor }} per kleur),</li>
+                <li>de stapel stadskaarten is leeg: jullie hebben er dus te lang over gedaan.</li>
+            </ul>
+
+            <h3>De Noodweer!-kaart</h3>
+            <p>Af en toe trek je een bijzondere kaart: de <b>Noodweer!-kaart</b>. Dan wordt het erger:
+                een nieuwe stad krijgt meteen 3 blokjes, en de steden die al getroffen zijn, komen snel weer aan de beurt.
+                Ook stijgt de dreiging: na een paar van deze kaarten worden er elke beurt meer steden getroffen.
+                Dit is het moment waarop het spannend wordt.</p>
+
+            <h3>Alle acties op een rij</h3>
+            <ul>
+                <li><b>Rijden</b> naar een stad die met een lijn verbonden is.</li>
+                <li><b>Vliegen</b>: leg de kaart van de bestemming af en ga er meteen heen.</li>
                 <li><b>Charter</b>: leg de kaart van je eigen stad af en ga waarheen je wilt.</li>
                 <li><b>Pendelen</b> van hulppost naar hulppost.</li>
-                <li><b>Hulppost bouwen</b>: leg de kaart van je eigen stad af (max. {{ maxStations }}).</li>
-                <li><b>Herstellen</b>: haal 1 blokje weg in je stad. Is die soort bedwongen, dan alle blokjes van die kleur.</li>
-                <li><b>Kaart geven of nemen</b>: allebei in dezelfde stad, en het moet de kaart van die stad zijn.</li>
+                <li><b>Hulppost bouwen</b>: leg de kaart van je eigen stad af (max. {{ maxStations }}).
+                    Essen en Amersfoort hebben er al een.</li>
+                <li><b>Opruimen</b>: haal 1 blokje weg in je stad. Is die soort al bedwongen, dan alle blokjes van die kleur in één keer.</li>
+                <li><b>Kaart geven of nemen</b>: allebei in dezelfde stad, met de kaart van die stad.</li>
                 <li><b>Bedwingen</b>: in een hulppost {{ rules.cardsToCure }} kaarten van dezelfde kleur afleggen.</li>
             </ul>
 
-            <h3>Uitbraken</h3>
-            <p>Krijgt een stad een vierde blokje, dan breekt het noodweer uit: elke verbonden stad krijgt een blokje.
-                Dat kan doorketenen, maar per kettingreactie breekt elke stad maar één keer uit.</p>
-
-            <h3>Noodweer!-kaart</h3>
-            <p>De dreiging stijgt, de onderste stad van de dreigingsstapel krijgt 3 blokjes, en de al getroffen steden
-                worden geschud en bovenop de stapel gelegd. Die komen dus snel weer terug.</p>
-
-            <h3>Verloren als…</h3>
+            <h3>Handig om te weten</h3>
             <ul>
-                <li>er {{ maxOutbreaks }} uitbraken zijn geweest,</li>
-                <li>er van een kleur geen blokjes meer over zijn ({{ rules.cubesPerColor }} per kleur),</li>
-                <li>de stapel stadskaarten op is.</li>
+                <li>Je mag maximaal {{ handLimit }} kaarten op hand hebben. Heb je er meer, dan leg je er een af.</li>
+                <li>Is een soort bedwongen en liggen er geen blokjes meer van op de kaart, dan is die voorgoed verdwenen
+                    en komt die niet meer terug.</li>
+                <li>Op de kaart tik je een stad aan om te zien wat je daar kunt doen.</li>
+                <li>De stippellijn tussen Essen en Amersfoort is natuurlijk geen toeval.</li>
             </ul>
-            <p class="muted">Een bedwongen soort zonder blokjes op de kaart is voorgoed verdwenen en komt niet meer terug.
-                De stippellijn tussen Essen en Amersfoort is natuurlijk geen toeval.</p>
         </div>
     </ng-template>
 </div>

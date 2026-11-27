@@ -277,8 +277,8 @@ export function reduce(state: GameState, action: Action): GameState {
       const amount = s.cured[action.color] ? s.cubes[p.city][action.color] : 1;
       s.cubes[p.city][action.color] -= amount;
       s.supply[action.color] += amount;
-      addLog(s, p.name + ' herstelt ' + amount + 'x ' + THREATS[action.color].short
-        + ' in ' + cityName(p.city) + '.');
+      addLog(s, p.name + ' ruimt ' + amount + 'x ' + THREATS[action.color].short
+        + ' op in ' + cityName(p.city) + '.');
       checkEradicated(s, action.color);
       break;
     }
