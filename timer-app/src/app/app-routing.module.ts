@@ -9,7 +9,9 @@ import { NoodweerComponent } from './noodweer/noodweer.component';
 const routes: Routes = [
   { path: 'stopwatch', component: StopwatchComponent },
   { path: 'image-recognition', component: ImageRecogntionComponent },
-  { path: 'kerstvragen', component: QuestionsComponent },
+  { path: 'kerstvragen', component: QuestionsComponent, data: { set: 'kerstvragen' } },
+  { path: 'vragenkaarten', component: QuestionsComponent, data: { set: 'vragenkaarten' } },
+  { path: 'hoe-goed-ken-je-mij', component: QuestionsComponent, data: { set: 'hoeGoed' } },
   { path: 'noodweer', component: NoodweerComponent }
 ];
 

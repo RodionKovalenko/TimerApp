@@ -41,6 +41,90 @@ h1 {
   margin: 8px 0 12px;
 }
 
+.parts {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.parts a {
+  flex: 1;
+  text-align: center;
+  font: 13px system-ui, sans-serif;
+  padding: 8px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.parts a.active {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.score {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.score .player {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.score input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: 15px system-ui, sans-serif;
+}
+
+.score button {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: 15px system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.score .plus {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.score .points {
+  min-width: 28px;
+  text-align: center;
+  font: 600 20px system-ui, sans-serif;
+}
+
+.score small {
+  font: 12px system-ui, sans-serif;
+  color: var(--muted);
+  text-align: center;
+}
+
+.intro {
+  font: 14px system-ui, sans-serif;
+  color: var(--muted);
+  text-align: center;
+  margin: -4px 0 14px;
+  line-height: 1.45;
+}
+
 .rounds {
   display: flex;
   gap: 6px;

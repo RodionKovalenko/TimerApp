@@ -1,14 +1,15 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { Question, QUESTIONS, ROUND_NAMES } from './questions.data';
+import { ActivatedRoute } from '@angular/router';
+import { KERSTVRAGEN, Question, QUESTION_SETS, QuestionSet } from './questions.data';
 
 interface QuestionsState {
   round: number;
   shuffle: boolean;
   order: number[];
   pos: number;
+  names: string[];
+  scores: number[];
 }
-
-const STORAGE_KEY = 'kerstvragen-state';
 
 @Component({
   selector: 'app-questions',
@@ -16,17 +17,57 @@ const STORAGE_KEY = 'kerstvragen-state';
   styleUrls: ['./questions.component.css']
 })
 export class QuestionsComponent implements OnInit {
-  readonly roundNames = ROUND_NAMES;
-  readonly rounds = [0, 1, 2, 3];
+  readonly set: QuestionSet;
+  readonly rounds: number[];
 
-  state: QuestionsState = { round: 0, shuffle: false, order: [], pos: 0 };
+  state: QuestionsState = { round: 0, shuffle: false, order: [], pos: 0, names: ['', ''], scores: [0, 0] };
   hidden = false;
   private touchStartX: number = null;
+
+  /** The question set comes from the route data, e.g. { set: 'vragenkaarten' }. */
+  constructor(route: ActivatedRoute) {
+    this.set = QUESTION_SETS[route.snapshot.data.set] || KERSTVRAGEN;
+    this.rounds = this.set.roundNames.map((name, i) => i);
+  }
+
+  get roundNames(): string[] {
+    return this.set.roundNames;
+  }
+
+  /** Only show round filters when there is more than one round. */
+  get hasRounds(): boolean {
+    return this.set.roundNames.length > 2;
+  }
+
+  playerName(i: number): string {
+    return (this.state.names[i] || '').trim() || 'Speler ' + (i + 1);
+  }
+
+  setName(i: number, name: string): void {
+    this.state.names[i] = name;
+    this.save();
+  }
+
+  addPoint(i: number, delta: number): void {
+    this.state.scores[i] = Math.max(0, this.state.scores[i] + delta);
+    this.save();
+  }
+
+  get doneText(): string {
+    if (!this.set.scoring) {
+      return this.set.doneText;
+    }
+    const [a, b] = this.state.scores;
+    const result = a === b
+      ? 'Gelijkspel: ' + a + ' tegen ' + b + '. Jullie kennen elkaar even goed!'
+      : this.playerName(a > b ? 0 : 1) + ' wint met ' + Math.max(a, b) + ' tegen ' + Math.min(a, b) + '.';
+    return this.set.doneText + ' ' + result;
+  }
 
   ngOnInit(): void {
     this.load();
     const valid = Array.isArray(this.state.order) && this.state.order.length > 0
-      && this.state.order.every(id => !!QUESTIONS[id - 1]);
+      && this.state.order.every(id => !!this.set.questions[id - 1]);
     if (!valid) {
       this.buildOrder();
     }
@@ -41,7 +82,7 @@ export class QuestionsComponent implements OnInit {
   }
 
   get current(): Question {
-    return this.done ? null : QUESTIONS[this.state.order[this.state.pos] - 1];
+    return this.done ? null : this.set.questions[this.state.order[this.state.pos] - 1];
   }
 
   get progress(): number {
@@ -66,13 +107,17 @@ export class QuestionsComponent implements OnInit {
   }
 
   restart(): void {
-    this.animate(() => this.buildOrder());
+    this.animate(() => {
+      this.buildOrder();
+      this.state.scores = [0, 0];
+    });
   }
 
   next(): void {
     this.animate(() => {
       if (this.done) {
         this.buildOrder();
+        this.state.scores = [0, 0];
       } else {
         this.state.pos++;
       }
@@ -88,6 +133,9 @@ export class QuestionsComponent implements OnInit {
   @HostListener('document:keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement;
+    if (target && target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'text') {
+      return;
+    }
     // Space/Enter on a focused button or checkbox already triggers it natively.
     const onControl = target && (target.tagName === 'INPUT' || target.tagName === 'BUTTON');
     if (event.key === 'ArrowRight' || (!onControl && (event.key === ' ' || event.key === 'Enter'))) {
@@ -125,7 +173,7 @@ export class QuestionsComponent implements OnInit {
   }
 
   private buildOrder(): void {
-    const ids = QUESTIONS
+    const ids = this.set.questions
       .filter(q => !this.state.round || q.round === this.state.round)
       .map(q => q.id);
     if (this.state.shuffle) {
@@ -140,16 +188,20 @@ export class QuestionsComponent implements OnInit {
 
   private load(): void {
     try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      const saved = JSON.parse(localStorage.getItem(this.set.storageKey));
       if (saved) {
         this.state = { ...this.state, ...saved };
+      }
+      if (!Array.isArray(this.state.names) || !Array.isArray(this.state.scores)) {
+        this.state.names = ['', ''];
+        this.state.scores = [0, 0];
       }
     } catch (e) { }
   }
 
   private save(): void {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      localStorage.setItem(this.set.storageKey, JSON.stringify(this.state));
     } catch (e) { }
   }
 }

@@ -1,7 +1,11 @@
 <div class="questions">
-    <h1>36 kerstvragen</h1>
+    <nav class="parts" *ngIf="set.parts">
+        <a *ngFor="let part of set.parts" [routerLink]="part.path" routerLinkActive="active">{{ part.label }}</a>
+    </nav>
+    <h1>{{ set.title }}</h1>
+    <p class="intro" *ngIf="set.intro">{{ set.intro }}</p>
 
-    <div class="rounds" role="group" aria-label="Ronde">
+    <div class="rounds" *ngIf="hasRounds" role="group" [attr.aria-label]="set.roundLabel">
         <button *ngFor="let r of rounds" type="button"
                 [class.active]="state.round === r"
                 [attr.aria-pressed]="state.round === r"
@@ -14,19 +18,33 @@
          (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
         <div class="meta">
             <span *ngIf="current">Vraag <span class="num">{{ current.id }}</span></span>
-            <span *ngIf="current">Ronde {{ current.round }}: {{ roundNames[current.round] }}</span>
+            <span *ngIf="current && hasRounds">{{ set.roundLabel }} {{ current.round }}: {{ roundNames[current.round] }}</span>
         </div>
 
         <div class="q">
-            {{ current ? current.text : 'Alle kaartjes zijn getrokken. Fijne kerst! 🎄' }}
+            {{ current ? current.text : doneText }}
         </div>
 
         <div class="turn" *ngIf="current">
             Kaartje {{ state.pos + 1 }} van {{ total }} ·
-            <b>{{ state.pos % 2 === 0 ? 'Jij' : 'De ander' }}</b> trekt
+            <b>{{ state.pos % 2 === 0 ? 'Jij' : 'De ander' }}</b> {{ set.turnVerb || 'trekt' }}<span *ngIf="set.turnHint">, {{ state.pos % 2 === 0 ? 'de ander' : 'jij' }} antwoordt eerst</span>
         </div>
 
         <div class="progress"><div [style.width.%]="progress"></div></div>
+    </div>
+
+    <div class="score" *ngIf="set.scoring">
+        <div class="player" *ngFor="let i of [0, 1]">
+            <input type="text" maxlength="14" [placeholder]="'Speler ' + (i + 1)"
+                   [value]="state.names[i]" (change)="setName(i, $event.target.value)"
+                   [attr.aria-label]="'Naam speler ' + (i + 1)">
+            <button type="button" class="minus" (click)="addPoint(i, -1)"
+                    [attr.aria-label]="'Punt eraf voor ' + playerName(i)">−</button>
+            <b class="points">{{ state.scores[i] }}</b>
+            <button type="button" class="plus" (click)="addPoint(i, 1)"
+                    [attr.aria-label]="'Punt erbij voor ' + playerName(i)">+1</button>
+        </div>
+        <small>Goed geraden? Geef die speler een punt.</small>
     </div>
 
     <div class="controls">
