@@ -19,6 +19,7 @@ import { ImageRecogntionComponent } from './image-recogntion/image-recogntion.co
 import { Router, RouteReuseStrategy } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CacheRouteReuseStrategyService } from './cache-route-reuse-strategy.service';
+import { QuestionsComponent } from './questions/questions.component';
 
 enableProdMode();
 
@@ -26,7 +27,8 @@ enableProdMode();
   declarations: [
     AppComponent,
     StopwatchComponent,
-    ImageRecogntionComponent
+    ImageRecogntionComponent,
+    QuestionsComponent
   ],
   imports: [
     BrowserModule,

@@ -45,6 +45,10 @@ export class ImageRecogntionComponent implements OnInit, AfterViewInit, OnDestro
   async ngAfterViewInit() {    
   }  
 
+  ngOnDestroy() {
+    this.terminateWorker();
+  }
+
   startCamera(constraints) {
     this.initializeServiceWorker();
     const vid = this.video.nativeElement;

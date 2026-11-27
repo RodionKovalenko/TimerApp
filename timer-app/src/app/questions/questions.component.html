@@ -1,0 +1,44 @@
+<div class="questions">
+    <h1>36 kerstvragen</h1>
+
+    <div class="rounds" role="group" aria-label="Ronde">
+        <button *ngFor="let r of rounds" type="button"
+                [class.active]="state.round === r"
+                [attr.aria-pressed]="state.round === r"
+                (click)="selectRound(r)">
+            {{ r === 0 ? roundNames[0] : r + ' · ' + roundNames[r] }}
+        </button>
+    </div>
+
+    <div class="card" [class.out]="hidden" [class.done]="done"
+         (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+        <div class="meta">
+            <span *ngIf="current">Vraag <span class="num">{{ current.id }}</span></span>
+            <span *ngIf="current">Ronde {{ current.round }}: {{ roundNames[current.round] }}</span>
+        </div>
+
+        <div class="q">
+            {{ current ? current.text : 'Alle kaartjes zijn getrokken. Fijne kerst! 🎄' }}
+        </div>
+
+        <div class="turn" *ngIf="current">
+            Kaartje {{ state.pos + 1 }} van {{ total }} ·
+            <b>{{ state.pos % 2 === 0 ? 'Jij' : 'De ander' }}</b> trekt
+        </div>
+
+        <div class="progress"><div [style.width.%]="progress"></div></div>
+    </div>
+
+    <div class="controls">
+        <button type="button" (click)="prev()" [disabled]="state.pos === 0">← Vorige</button>
+        <button type="button" class="primary" (click)="next()">{{ nextLabel }}</button>
+    </div>
+
+    <div class="sub">
+        <label>
+            <input type="checkbox" [checked]="state.shuffle" (change)="toggleShuffle($event.target.checked)">
+            Kaartjes schudden
+        </label>
+        <button type="button" (click)="restart()">Opnieuw beginnen</button>
+    </div>
+</div>
