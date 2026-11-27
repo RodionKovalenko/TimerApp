@@ -1,0 +1,27 @@
+/** Dutch words for "Woordwacht": common, concrete nouns that allow many associations. */
+export const WORDS: string[] = [
+  'appel', 'auto', 'baan', 'bad', 'bal', 'band', 'bank', 'bed', 'beer', 'berg',
+  'bier', 'blad', 'bloem', 'boek', 'boom', 'boot', 'bord', 'brug', 'bril', 'brief',
+  'buik', 'bus', 'cake', 'circus', 'dak', 'das', 'deur', 'dief', 'dokter', 'draak',
+  'duin', 'duif', 'ei', 'eiland', 'engel', 'fiets', 'film', 'fles', 'fluit', 'gat',
+  'geest', 'geld', 'gitaar', 'glas', 'goud', 'gras', 'haan', 'hals', 'hamer', 'hand',
+  'hart', 'haven', 'heks', 'hemel', 'hoed', 'hond', 'honing', 'hoorn', 'huis', 'ijs',
+  'jas', 'kaars', 'kaart', 'kaas', 'kabel', 'kamer', 'kanon', 'kasteel', 'kat', 'kerk',
+  'kers', 'kip', 'klok', 'knoop', 'koek', 'koffie', 'koning', 'kop', 'kroon', 'kruis',
+  'kust', 'lamp', 'lepel', 'lijn', 'leeuw', 'lucht', 'maan', 'mantel', 'markt', 'masker',
+  'mes', 'molen', 'muis', 'muur', 'naald', 'nacht', 'neus', 'noot', 'olie', 'oog',
+  'oor', 'paard', 'pak', 'pan', 'papier', 'park', 'pen', 'piano', 'piraat', 'plant',
+  'pleister', 'pop', 'post', 'potlood', 'prins', 'raam', 'radio', 'raket', 'regen', 'ridder',
+  'ring', 'rok', 'rook', 'roos', 'rots', 'schaar', 'schaduw', 'schaap', 'schip', 'school',
+  'schoen', 'sinas', 'sleutel', 'slang', 'sneeuw', 'soep', 'spiegel', 'spin', 'spoor', 'staart',
+  'stad', 'ster', 'stoel', 'storm', 'straat', 'strand', 'stroom', 'suiker', 'taart', 'tafel',
+  'tand', 'tas', 'taxi', 'telefoon', 'tent', 'theater', 'toren', 'trein', 'trommel', 'tuin',
+  'tulp', 'uil', 'vaas', 'vis', 'vlag', 'vleugel', 'vlinder', 'vogel', 'vonk', 'vork',
+  'vos', 'vuur', 'wagen', 'water', 'web', 'wiel', 'wind', 'winkel', 'wolk', 'worm',
+  'zak', 'zand', 'zee', 'zeep', 'zon', 'zout', 'zwaard', 'zwembad', 'anker', 'ballon',
+  'bij', 'blik', 'bocht', 'bonbon', 'bos', 'cadeau', 'cel', 'diamant', 'dorp', 'fabriek',
+  'gordijn', 'hek', 'helm', 'hut', 'jager', 'kanaal', 'kikker', 'klomp', 'koe', 'kok',
+  'kraan', 'krant', 'kreeft', 'ladder', 'lied', 'magneet', 'motor', 'mug', 'museum', 'net',
+  'oven', 'parel', 'politie', 'pomp', 'robot', 'schat', 'schild', 'slot', 'snoep', 'speld',
+  'spons', 'stempel', 'stok', 'tijger', 'trap', 'tunnel', 'veer', 'vulkaan', 'wals', 'zegel'
+];

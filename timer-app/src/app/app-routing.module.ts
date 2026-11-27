@@ -6,6 +6,7 @@ import { QuestionsComponent } from './questions/questions.component';
 import { NoodweerComponent } from './noodweer/noodweer.component';
 import { SterrenpadComponent } from './sterrenpad/sterrenpad.component';
 import { MoestuinComponent } from './moestuin/moestuin.component';
+import { WoordwachtComponent } from './woordwacht/woordwacht.component';
 
 
 const routes: Routes = [
@@ -16,7 +17,8 @@ const routes: Routes = [
   { path: 'hoe-goed-ken-je-mij', component: QuestionsComponent, data: { set: 'hoeGoed' } },
   { path: 'noodweer', component: NoodweerComponent },
   { path: 'sterrenpad', component: SterrenpadComponent },
-  { path: 'moestuin', component: MoestuinComponent }
+  { path: 'moestuin', component: MoestuinComponent },
+  { path: 'woordwacht', component: WoordwachtComponent }
 ];
 
 @NgModule({

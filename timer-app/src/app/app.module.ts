@@ -23,6 +23,7 @@ import { QuestionsComponent } from './questions/questions.component';
 import { NoodweerComponent } from './noodweer/noodweer.component';
 import { SterrenpadComponent } from './sterrenpad/sterrenpad.component';
 import { MoestuinComponent } from './moestuin/moestuin.component';
+import { WoordwachtComponent } from './woordwacht/woordwacht.component';
 
 enableProdMode();
 
@@ -34,7 +35,8 @@ enableProdMode();
     QuestionsComponent,
     NoodweerComponent,
     SterrenpadComponent,
-    MoestuinComponent
+    MoestuinComponent,
+    WoordwachtComponent
   ],
   imports: [
     BrowserModule,

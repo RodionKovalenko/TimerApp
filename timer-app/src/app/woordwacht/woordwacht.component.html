@@ -1,0 +1,138 @@
+<div class="ww">
+
+    <!-- ===================================================== setup -->
+    <div class="setup" *ngIf="!game">
+        <h1>Woordwacht</h1>
+        <p class="lead">
+            Een coöperatief woordspel voor twee. Er liggen 25 woorden. Allebei hebben jullie een geheime sleutel
+            met de woorden die de ánder moet vinden, en met een paar bommen die de ander juist moet vermijden.
+            Vind samen alle 15 woorden in {{ rounds }} rondes.
+        </p>
+        <div class="field" *ngFor="let i of [0, 1]">
+            <span class="label">Speler {{ i + 1 }}</span>
+            <input type="text" maxlength="14" [placeholder]="'Speler ' + (i + 1)"
+                   [value]="setupNames[i]" (input)="setupNames[i] = $event.target.value">
+        </div>
+        <button type="button" class="primary big" (click)="start()">Spel starten</button>
+        <button type="button" class="link" (click)="showRules = !showRules">
+            {{ showRules ? 'Spelregels verbergen' : 'Spelregels lezen' }}
+        </button>
+        <ng-container *ngIf="showRules"><ng-container *ngTemplateOutlet="rulesTpl"></ng-container></ng-container>
+    </div>
+
+    <ng-container *ngIf="game">
+        <!-- ===================================================== status -->
+        <div class="status">
+            <div>
+                <small>Rondes</small>
+                <div class="pips">
+                    <span *ngFor="let i of range(rounds)" [class.on]="i < game.roundsLeft"></span>
+                </div>
+            </div>
+            <div><small>Gevonden</small><b>{{ greensTotal - greensLeft }}/{{ greensTotal }}</b></div>
+            <div class="per">
+                <small>Groen over op sleutel van</small>
+                <span>{{ game.names[0] }}: <b>{{ greensFor(0) }}</b></span>
+                <span>{{ game.names[1] }}: <b>{{ greensFor(1) }}</b></span>
+            </div>
+        </div>
+
+        <!-- ===================================================== hand-over / clue -->
+        <div class="panel center" *ngIf="game.phase === 'give' && !showKey">
+            <p class="last" *ngIf="game.last">{{ game.last }}</p>
+            <h2>{{ giverName }} geeft een hint</h2>
+            <p><b>{{ guesserName }}</b>: kijk even niet naar het scherm.</p>
+            <button type="button" class="primary big" (click)="revealKey()">Ik ben {{ giverName }}: toon mijn sleutel</button>
+        </div>
+
+        <div class="panel" *ngIf="game.phase === 'give' && showKey">
+            <p class="tip">
+                <b>{{ giverName }}</b>, de <span class="g">groene</span> woorden moet {{ guesserName }} vinden.
+                Vermijd de <span class="b">bommen</span>. Bedenk één woord en een getal: hoeveel woorden horen erbij?
+            </p>
+            <div class="clue-form">
+                <input type="text" maxlength="24" placeholder="Hint (mag je ook hardop zeggen)"
+                       [value]="clueWord" (input)="clueWord = $event.target.value">
+                <div class="counts">
+                    <button type="button" *ngFor="let n of counts" [class.on]="clueCount === n" (click)="clueCount = n">{{ n }}</button>
+                </div>
+                <button type="button" class="primary" (click)="giveClue()">Hint geven en sleutel verbergen</button>
+            </div>
+        </div>
+
+        <div class="panel clue" *ngIf="game.phase === 'guess'">
+            <div>Hint van {{ giverName }}: <b class="clue-word">{{ game.clue.word || '(hardop gezegd)' }}</b>
+                <span class="count">{{ game.clue.count }}</span></div>
+            <small class="muted">{{ guesserName }} raadt. Tik een woord aan en bevestig. Je mag doorgaan zolang je goed zit.</small>
+        </div>
+
+        <!-- ===================================================== board -->
+        <div class="board">
+            <button type="button" *ngFor="let w of game.words; let i = index" class="word" [ngClass]="cellClass(i)"
+                    [class.sel]="selected === i" [disabled]="game.phase !== 'guess' || !guessable(i)"
+                    (click)="tapWord(i)">
+                <span class="text">{{ w }}</span>
+                <span class="marks">
+                    <span *ngIf="game.neutral[0][i]" [title]="'Niet goed voor ' + game.names[0]">✕{{ game.names[0].charAt(0) }}</span>
+                    <span *ngIf="game.neutral[1][i]" [title]="'Niet goed voor ' + game.names[1]">✕{{ game.names[1].charAt(0) }}</span>
+                </span>
+            </button>
+        </div>
+
+        <div class="actions" *ngIf="game.phase === 'guess'">
+            <button type="button" class="primary" [disabled]="selected < 0" (click)="confirmGuess()">
+                {{ selected >= 0 ? 'Kies “' + game.words[selected] + '”' : 'Kies een woord' }}
+            </button>
+            <button type="button" [disabled]="game.guessesThisTurn === 0" (click)="stop()">Stoppen met raden</button>
+        </div>
+
+        <!-- ===================================================== end -->
+        <div class="panel center" *ngIf="over">
+            <h2>{{ game.phase === 'won' ? 'Gewonnen! 🎉' : 'Helaas, verloren' }}</h2>
+            <p>{{ game.log[0] }}</p>
+            <p class="muted">Bekijk de sleutels:</p>
+            <div class="counts">
+                <button type="button" *ngFor="let n of [0, 1]" [class.on]="endKey === n" (click)="endKey = n">
+                    Sleutel van {{ game.names[n] }}
+                </button>
+            </div>
+            <button type="button" class="primary big" (click)="quit()">Nieuw spel</button>
+        </div>
+
+        <div class="footer-links">
+            <button type="button" class="link" (click)="showLog = !showLog">{{ showLog ? 'Logboek verbergen' : 'Logboek' }}</button>
+            <button type="button" class="link" (click)="showRules = !showRules">{{ showRules ? 'Spelregels verbergen' : 'Spelregels' }}</button>
+            <button type="button" class="link" (click)="quit()" *ngIf="!over">Stoppen</button>
+        </div>
+        <ol class="log panel" *ngIf="showLog"><li *ngFor="let l of game.log">{{ l }}</li></ol>
+        <ng-container *ngIf="showRules"><ng-container *ngTemplateOutlet="rulesTpl"></ng-container></ng-container>
+    </ng-container>
+
+    <ng-template #rulesTpl>
+        <div class="rules panel">
+            <h3>Het idee</h3>
+            <p>Er liggen 25 woorden op tafel. Allebei hebben jullie een geheime sleutel. Daarop staan 9 groene woorden
+                die de ánder moet raden, en 3 bommen die de ander juist niet mag kiezen. Samen zijn er 15 verschillende
+                groene woorden. Vind ze allemaal in {{ rounds }} rondes.</p>
+
+            <h3>Een ronde</h3>
+            <ol>
+                <li>De hintgever bekijkt zijn sleutel (de ander kijkt weg) en bedenkt <b>één woord en een getal</b>,
+                    bijvoorbeeld “zee 3”: drie groene woorden hebben met de zee te maken.</li>
+                <li>De ander raadt door woorden aan te tikken. Groen? Goed, je mag doorgaan.</li>
+                <li>Een woord dat voor de hintgever niet groen is, beëindigt de ronde. Een <b>bom</b> beëindigt het hele spel.</li>
+                <li>Je mag ook zelf stoppen, als je minstens één keer geraden hebt.</li>
+            </ol>
+            <p>Daarna wisselen jullie: wie net raadde, geeft nu de hint.</p>
+
+            <h3>Goed om te weten</h3>
+            <ul>
+                <li>Een woord kan voor de een groen zijn en voor de ander niet. Een ✕ met een letter betekent:
+                    dit woord is niet goed voor de speler met die letter. Voor de ander kan het nog steeds groen zijn!</li>
+                <li>Een hint mag geen woord van het bord zijn, en ook geen deel ervan.</li>
+                <li>Zijn alle woorden van één speler gevonden, dan geeft alleen de ander nog hints.</li>
+                <li>Elke ronde kost één stip, ook als die goed ging. Zijn ze op, dan is het spel voorbij.</li>
+            </ul>
+        </div>
+    </ng-template>
+</div>
