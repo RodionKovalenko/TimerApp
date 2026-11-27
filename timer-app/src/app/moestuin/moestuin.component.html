@@ -1,0 +1,181 @@
+<div class="mt">
+
+    <!-- ===================================================== setup -->
+    <div class="setup" *ngIf="!game">
+        <h1>Moestuin</h1>
+        <p class="lead">
+            Een puzzelspel voor twee. Jullie hebben allebei een eigen moestuin van 9 bij 9 vakken.
+            Koop beddingen met zaadjes, puzzel ze in je tuin en let op de tijd: het seizoen duurt {{ seasonEnd }} dagen.
+            Wie aan het eind de mooiste, volste tuin heeft, wint.
+        </p>
+        <div class="field" *ngFor="let i of [0, 1]">
+            <span class="label">Speler {{ i + 1 }}</span>
+            <input type="text" maxlength="14" [placeholder]="'Speler ' + (i + 1)"
+                   [value]="setupNames[i]" (input)="setupNames[i] = $event.target.value">
+        </div>
+        <button type="button" class="primary big" (click)="start()">Spel starten</button>
+        <button type="button" class="link" (click)="showRules = !showRules">
+            {{ showRules ? 'Spelregels verbergen' : 'Spelregels lezen' }}
+        </button>
+        <ng-container *ngIf="showRules"><ng-container *ngTemplateOutlet="rulesTpl"></ng-container></ng-container>
+    </div>
+
+    <ng-container *ngIf="game">
+
+        <!-- ===================================================== season track -->
+        <div class="panel">
+            <div class="track" aria-label="Seizoen">
+                <div *ngFor="let d of days" class="day" [ngClass]="dayMark(d)"
+                     [title]="'Dag ' + d"></div>
+                <div *ngFor="let p of game.players; let i = index" class="token" [class.p2]="i === 1"
+                     [style.left.%]="p.day / seasonEnd * 100" [title]="p.name + ': dag ' + p.day"></div>
+            </div>
+            <div class="legend">
+                <span><i class="dot harvest"></i> oogstdag</span>
+                <span><i class="dot flower"></i> zonnebloem</span>
+                <span *ngFor="let p of game.players; let i = index">
+                    <i class="dot tok" [class.p2]="i === 1"></i> {{ p.name }}: dag {{ p.day }}
+                </span>
+            </div>
+        </div>
+
+        <!-- ===================================================== players -->
+        <div class="scores">
+            <div class="ps" *ngFor="let p of game.players; let i = index" [class.active]="i === active && !over">
+                <b>{{ p.name }}</b>
+                <span>🌱 {{ p.seeds }}</span>
+                <span title="Gieters: zaadjes per oogst">🪣 {{ p.cans }}</span>
+                <span title="Lege vakken">▢ {{ empty(p) }}</span>
+                <span *ngIf="p.bonus" title="Bonus voor een vol vak van 7×7">★ +{{ bonusPoints }}</span>
+            </div>
+        </div>
+
+        <ng-container *ngIf="!over">
+            <div class="banner">
+                <ng-container *ngIf="game.phase === 'sunflower'">
+                    🌻 <b>{{ me.name }}</b>, plant je zonnebloem: tik een leeg vak in je tuin.
+                </ng-container>
+                <ng-container *ngIf="game.phase === 'choose'">
+                    <b>{{ me.name }}</b> is aan de beurt
+                    <span class="muted">(dag {{ me.day }}, nog {{ harvestsLeft(me) }} oogstdagen)</span>
+                </ng-container>
+            </div>
+
+            <!-- market -->
+            <div class="panel" *ngIf="game.phase === 'choose'">
+                <div class="market">
+                    <button type="button" *ngFor="let t of marketTiles; let k = index" class="tile"
+                            [class.sel]="pick === k" [disabled]="!buyable(k)" (click)="choose(k)">
+                        <div class="mini">
+                            <div class="mrow" *ngFor="let row of (pick === k ? miniCells(t, rotation, mirror) : miniCells(t))">
+                                <span *ngFor="let on of row" [class.on]="on" [style.background]="on ? tileColor(t.id) : ''"></span>
+                            </div>
+                        </div>
+                        <div class="tname">{{ t.name }}</div>
+                        <div class="tstats">🌱{{ t.cost }} · ⏳{{ t.days }}<ng-container *ngIf="t.cans"> · 🪣{{ t.cans }}</ng-container></div>
+                        <small class="why" *ngIf="!buyable(k)">{{ whyNot(t) }}</small>
+                    </button>
+                </div>
+                <div class="upcoming" *ngIf="upcoming.length">
+                    <small class="muted">Daarna:</small>
+                    <span *ngFor="let t of upcoming" class="up" [title]="t.name + ': 🌱' + t.cost + ' ⏳' + t.days">
+                        <span class="mini small">
+                            <span class="mrow" *ngFor="let row of miniCells(t)">
+                                <span *ngFor="let on of row" [class.on]="on" [style.background]="on ? tileColor(t.id) : ''"></span>
+                            </span>
+                        </span>
+                        <small>🌱{{ t.cost }} ⏳{{ t.days }}</small>
+                    </span>
+                </div>
+                <div class="tools" *ngIf="selectedTile">
+                    <button type="button" (click)="rotate()">↻ Draaien</button>
+                    <button type="button" (click)="flip()">⇋ Spiegelen</button>
+                    <span class="muted">Tik in je tuin waar de linkerbovenhoek moet komen.</span>
+                </div>
+                <div class="actions">
+                    <button type="button" class="primary" *ngIf="selectedTile" [disabled]="!ghostValid" (click)="plant()">
+                        {{ ghostValid ? 'Plant ' + selectedTile.name : 'Kies een plek in je tuin' }}
+                    </button>
+                    <button type="button" (click)="wait()">{{ waitText }}</button>
+                </div>
+            </div>
+        </ng-container>
+
+        <!-- ===================================================== gardens -->
+        <div class="gardens">
+            <div class="garden-wrap" *ngFor="let p of (over ? game.players : [me, other]); let gi = index"
+                 [class.small]="!over && gi === 1">
+                <div class="gname">{{ !over && gi === 0 ? 'Tuin van ' + p.name + ' (jij)' : 'Tuin van ' + p.name }}</div>
+                <div class="garden">
+                    <div class="grow" *ngFor="let r of rows">
+                        <button type="button" *ngFor="let c of rows" class="cell"
+                                [disabled]="over || gi !== 0 || (game.phase === 'choose' && !selectedTile) || (game.phase === 'sunflower' && p.grid[r][c] !== -1)"
+                                [style.background]="p.grid[r][c] >= 0 ? tileColor(p.grid[r][c]) : ''"
+                                [class.filled]="p.grid[r][c] >= 0"
+                                [class.bt]="edge(p, r, c, -1, 0)" [class.bb]="edge(p, r, c, 1, 0)"
+                                [class.bl]="edge(p, r, c, 0, -1)" [class.br]="edge(p, r, c, 0, 1)"
+                                [class.ghost]="!over && gi === 0 && isGhost(r, c)" [class.bad]="!ghostValid"
+                                (click)="tapCell(r, c)">
+                            <ng-container *ngIf="p.grid[r][c] === sunflower">🌻</ng-container>
+                            <ng-container *ngIf="hasCan(p, r, c)">🪣</ng-container>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================== end -->
+        <div class="panel end" *ngIf="over">
+            <h2>{{ winnerText }}</h2>
+            <table>
+                <tr><th></th><th *ngFor="let p of game.players">{{ p.name }}</th></tr>
+                <tr><td>Zaadjes</td><td *ngFor="let p of game.players">{{ p.seeds }}</td></tr>
+                <tr><td>Bonus 7×7</td><td *ngFor="let p of game.players">{{ p.bonus ? '+' + bonusPoints : '0' }}</td></tr>
+                <tr><td>Lege vakken × {{ emptyPenalty }}</td><td *ngFor="let p of game.players">−{{ empty(p) * emptyPenalty }}</td></tr>
+                <tr class="total"><td>Totaal</td><td *ngFor="let p of game.players">{{ score(p) }}</td></tr>
+            </table>
+            <button type="button" class="primary big" (click)="quit()">Nieuw spel</button>
+        </div>
+
+        <div class="footer-links">
+            <button type="button" class="link" (click)="showLog = !showLog">{{ showLog ? 'Logboek verbergen' : 'Logboek' }}</button>
+            <button type="button" class="link" (click)="showRules = !showRules">{{ showRules ? 'Spelregels verbergen' : 'Spelregels' }}</button>
+            <button type="button" class="link" (click)="quit()" *ngIf="!over">Stoppen</button>
+        </div>
+        <ol class="log panel" *ngIf="showLog"><li *ngFor="let l of game.log">{{ l }}</li></ol>
+        <ng-container *ngIf="showRules"><ng-container *ngTemplateOutlet="rulesTpl"></ng-container></ng-container>
+    </ng-container>
+
+    <ng-template #rulesTpl>
+        <div class="rules panel">
+            <h3>Het idee</h3>
+            <p>Jullie hebben elk een moestuin van 9 bij 9 vakken. Koop beddingen, puzzel ze in je tuin en zorg dat er
+                aan het eind zo min mogelijk lege vakken over zijn.</p>
+
+            <h3>Wie is er aan de beurt?</h3>
+            <p>Op de seizoensbalk lopen jullie allebei van dag 0 naar dag {{ seasonEnd }}. Wie het verst achter ligt,
+                is aan de beurt. Je kunt dus soms meerdere keren achter elkaar spelen.</p>
+
+            <h3>Jouw beurt: kies één van twee</h3>
+            <ul>
+                <li><b>Een bedding planten.</b> Je mag kiezen uit de drie beddingen die vooraan liggen.
+                    Betaal de zaadjes (🌱), leg de bedding in je tuin (draaien en spiegelen mag) en loop zoveel dagen (⏳)
+                    vooruit als erop staat.</li>
+                <li><b>Wachten.</b> Ga naar één dag voorbij de ander en krijg 1 zaadje per dag die je vooruitgaat.</li>
+            </ul>
+
+            <h3>Oogst en zonnebloemen</h3>
+            <ul>
+                <li>Kom je over een <b>oogstdag</b>, dan krijg je 1 zaadje per gieter (🪣) in je tuin.
+                    Beddingen met gieters zijn vroeg in het seizoen dus extra waardevol.</li>
+                <li>Wie als eerste over een <b>zonnebloem</b> op de balk loopt, mag die als losse 1×1 in zijn tuin planten.
+                    Handig om gaatjes te vullen.</li>
+                <li>Wie als eerste een vol vak van {{ bonusSquare }}×{{ bonusSquare }} heeft, krijgt {{ bonusPoints }} bonuspunten.</li>
+            </ul>
+
+            <h3>Einde</h3>
+            <p>Als jullie allebei op dag {{ seasonEnd }} staan, is het seizoen voorbij. Je score is: je zaadjes, plus de bonus,
+                min {{ emptyPenalty }} punten per leeg vak. Een score onder nul is heel normaal.</p>
+        </div>
+    </ng-template>
+</div>

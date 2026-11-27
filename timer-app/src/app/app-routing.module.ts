@@ -5,6 +5,7 @@ import { ImageRecogntionComponent } from './image-recogntion/image-recogntion.co
 import { QuestionsComponent } from './questions/questions.component';
 import { NoodweerComponent } from './noodweer/noodweer.component';
 import { SterrenpadComponent } from './sterrenpad/sterrenpad.component';
+import { MoestuinComponent } from './moestuin/moestuin.component';
 
 
 const routes: Routes = [
@@ -14,7 +15,8 @@ const routes: Routes = [
   { path: 'vragenkaarten', component: QuestionsComponent, data: { set: 'vragenkaarten' } },
   { path: 'hoe-goed-ken-je-mij', component: QuestionsComponent, data: { set: 'hoeGoed' } },
   { path: 'noodweer', component: NoodweerComponent },
-  { path: 'sterrenpad', component: SterrenpadComponent }
+  { path: 'sterrenpad', component: SterrenpadComponent },
+  { path: 'moestuin', component: MoestuinComponent }
 ];
 
 @NgModule({

@@ -1,0 +1,487 @@
+:host {
+  --bg: #f4f0e6;
+  --panel: #fffdf7;
+  --ink: #2c2a24;
+  --muted: #7d7568;
+  --line: #e2dccd;
+  --accent: #3d7a3a;
+  --soil: #c9b18f;
+  display: block;
+  min-height: 100vh;
+  padding: 72px 12px 32px;
+  box-sizing: border-box;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.mt {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.primary {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+.big {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.link {
+  background: none;
+  border: 0;
+  color: var(--accent);
+  padding: 8px 4px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+/* ---------------------------------------------------------- setup */
+
+.setup {
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.setup h1 {
+  font-size: 1.8rem;
+  margin: 8px 0;
+}
+
+.lead {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.field {
+  margin: 14px 0;
+}
+
+.field .label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font: inherit;
+}
+
+/* ---------------------------------------------------------- track */
+
+.track {
+  position: relative;
+  display: flex;
+  height: 22px;
+  margin: 6px 6px 8px;
+}
+
+.day {
+  flex: 1;
+  border-right: 1px solid var(--line);
+  background: #efe9d8;
+}
+
+.day.harvest {
+  background: #9fc5e8;
+}
+
+.day.flower {
+  background: #ffd966;
+}
+
+.token {
+  position: absolute;
+  top: -5px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: #7b3fa0;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+  transition: left .3s;
+}
+
+.token.p2 {
+  top: 13px;
+  background: #e07a1f;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+.dot.harvest {
+  background: #9fc5e8;
+}
+
+.dot.flower {
+  background: #ffd966;
+}
+
+.dot.tok {
+  border-radius: 50%;
+  background: #7b3fa0;
+}
+
+.dot.tok.p2 {
+  background: #e07a1f;
+}
+
+/* ---------------------------------------------------------- players */
+
+.scores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ps {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 14px;
+}
+
+.ps b {
+  width: 100%;
+}
+
+.ps.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.banner {
+  text-align: center;
+  margin: 4px 0 10px;
+}
+
+/* ---------------------------------------------------------- market */
+
+.market {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.tile {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tile.sel {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.tile:disabled {
+  opacity: .45;
+}
+
+.tname {
+  font-weight: 600;
+  font-size: 13px;
+  text-align: center;
+}
+
+.tstats {
+  font-size: 12px;
+}
+
+.why {
+  color: #b45f06;
+  font-size: 11px;
+}
+
+.mini {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 46px;
+  justify-content: center;
+}
+
+.mrow {
+  display: flex;
+  gap: 1px;
+}
+
+.mrow span {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+}
+
+.mini.small .mrow span {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+}
+
+.mini.small {
+  min-height: 0;
+}
+
+.upcoming {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.up {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  opacity: .8;
+}
+
+.up small {
+  font-size: 10px;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.tools button,
+.actions button {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.actions button {
+  flex: 1;
+  min-width: 160px;
+}
+
+.actions button:disabled {
+  opacity: .5;
+}
+
+/* ---------------------------------------------------------- gardens */
+
+.gardens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.garden-wrap {
+  flex: 1 1 320px;
+  max-width: 440px;
+}
+
+.garden-wrap.small {
+  flex: 0 1 220px;
+  max-width: 260px;
+}
+
+.gname {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.garden {
+  display: grid;
+  grid-template-rows: repeat(9, 1fr);
+  background: var(--soil);
+  border: 3px solid #8b6b47;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 1px;
+}
+
+.grow {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 1px;
+}
+
+.cell {
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: #d8c4a3;
+  font-size: 11px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.garden-wrap:not(.small) .cell {
+  font-size: 16px;
+}
+
+.cell:disabled {
+  opacity: 1;
+}
+
+.cell.filled {
+  border-radius: 0;
+}
+
+.cell.bt {
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, .35);
+}
+
+.cell.bb {
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .35);
+}
+
+.cell.bt.bb {
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, .35), inset 0 -2px 0 rgba(0, 0, 0, .35);
+}
+
+.cell.bl {
+  border-left: 2px solid rgba(0, 0, 0, .35);
+}
+
+.cell.br {
+  border-right: 2px solid rgba(0, 0, 0, .35);
+}
+
+.cell.ghost {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  background: rgba(61, 122, 58, .45) !important;
+}
+
+.cell.ghost.bad {
+  outline-color: #cc0000;
+  background: rgba(204, 0, 0, .35) !important;
+}
+
+/* ---------------------------------------------------------- end + misc */
+
+.end {
+  text-align: center;
+}
+
+.end table {
+  margin: 10px auto;
+  border-collapse: collapse;
+}
+
+.end td,
+.end th {
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.end .total td {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.log {
+  font-size: 13px;
+  line-height: 1.5;
+  max-height: 240px;
+  overflow: auto;
+  padding-left: 30px;
+}
+
+.rules {
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.rules h3 {
+  font-size: 15px;
+  margin: 12px 0 4px;
+}
+
+.rules ul {
+  padding-left: 20px;
+  margin: 4px 0;
+}

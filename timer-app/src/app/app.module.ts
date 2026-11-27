@@ -22,6 +22,7 @@ import { CacheRouteReuseStrategyService } from './cache-route-reuse-strategy.ser
 import { QuestionsComponent } from './questions/questions.component';
 import { NoodweerComponent } from './noodweer/noodweer.component';
 import { SterrenpadComponent } from './sterrenpad/sterrenpad.component';
+import { MoestuinComponent } from './moestuin/moestuin.component';
 
 enableProdMode();
 
@@ -32,7 +33,8 @@ enableProdMode();
     ImageRecogntionComponent,
     QuestionsComponent,
     NoodweerComponent,
-    SterrenpadComponent
+    SterrenpadComponent,
+    MoestuinComponent
   ],
   imports: [
     BrowserModule,
