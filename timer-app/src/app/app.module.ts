@@ -21,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CacheRouteReuseStrategyService } from './cache-route-reuse-strategy.service';
 import { QuestionsComponent } from './questions/questions.component';
 import { NoodweerComponent } from './noodweer/noodweer.component';
+import { SterrenpadComponent } from './sterrenpad/sterrenpad.component';
 
 enableProdMode();
 
@@ -30,7 +31,8 @@ enableProdMode();
     StopwatchComponent,
     ImageRecogntionComponent,
     QuestionsComponent,
-    NoodweerComponent
+    NoodweerComponent,
+    SterrenpadComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,197 @@
+<div class="sp">
+
+    <!-- ===================================================== setup -->
+    <div class="setup" *ngIf="!game">
+        <h1>Sterrenpad</h1>
+        <p class="lead">
+            Samen maken jullie vijf sterrenbeelden compleet, elk van 1 tot 5 in de goede volgorde.
+            Het lastige: je ziet de kaarten van de ander, maar niet die van jezelf.
+            Fluister elkaar hints toe en vertrouw op elkaar.
+        </p>
+
+        <div class="field">
+            <span class="label">Aantal spelers</span>
+            <div class="seg">
+                <button *ngFor="let n of [2, 3, 4]" type="button" [class.on]="setupPlayers === n"
+                        (click)="setupPlayers = n">{{ n }}</button>
+            </div>
+        </div>
+        <div class="field" *ngFor="let i of range(setupPlayers); trackBy: trackByIndex">
+            <span class="label">Speler {{ i + 1 }}</span>
+            <input type="text" maxlength="14" [placeholder]="'Speler ' + (i + 1)"
+                   [value]="setupNames[i]" (input)="setupNames[i] = $event.target.value">
+        </div>
+        <button type="button" class="primary big" (click)="start()">Spel starten</button>
+        <button type="button" class="link" (click)="showRules = !showRules">
+            {{ showRules ? 'Spelregels verbergen' : 'Spelregels lezen' }}
+        </button>
+        <ng-container *ngIf="showRules"><ng-container *ngTemplateOutlet="rulesTpl"></ng-container></ng-container>
+    </div>
+
+    <ng-container *ngIf="game">
+
+        <!-- ===================================================== public board -->
+        <div class="board">
+            <div class="tokens">
+                <div title="Fluisteringen: nodig om een hint te geven">
+                    <small>Fluisteringen</small>
+                    <div class="pips">
+                        <span *ngFor="let i of range(maxWhispers)" class="pip whisper" [class.on]="i < game.whispers"></span>
+                    </div>
+                </div>
+                <div title="Bij {{ maxClouds }} wolken is het spel voorbij">
+                    <small>Wolken</small>
+                    <div class="pips">
+                        <span *ngFor="let i of range(maxClouds)" class="cloud" [class.on]="i < game.clouds">☁</span>
+                    </div>
+                </div>
+                <div><small>Stapel</small><b>{{ game.deck.length }}</b></div>
+                <div><small>Sterren</small><b>{{ score }}/{{ maxScore }}</b></div>
+            </div>
+
+            <div class="stacks">
+                <div class="stack" *ngFor="let c of colors; let ci = index">
+                    <div class="card face" [style.background]="c.hex" [class.empty]="!game.stacks[ci]">
+                        <span class="v">{{ game.stacks[ci] || '·' }}</span>
+                        <span class="star">★</span>
+                    </div>
+                    <div class="dis" [title]="'Afgelegd: ' + c.name">
+                        <span *ngFor="let v of discardOf(ci)" [style.color]="c.hex">{{ v }}</span>
+                    </div>
+                </div>
+            </div>
+            <p class="final" *ngIf="game.finalTurns > 0 && !over">
+                De stapel is op: nog {{ game.finalTurns }} {{ game.finalTurns === 1 ? 'beurt' : 'beurten' }}.
+            </p>
+        </div>
+
+        <!-- ===================================================== hand-over screen -->
+        <div class="curtain" *ngIf="!revealed && !over">
+            <p class="last" *ngIf="game.last">{{ game.last }}</p>
+            <h2>Beurt van {{ me.name }}</h2>
+            <p>Iedereen behalve <b>{{ me.name }}</b>: kijk even niet naar het scherm.<br>
+                {{ me.name }}, jouw eigen kaarten blijven verborgen.</p>
+            <button type="button" class="primary big" (click)="reveal()">Ik ben {{ me.name }}: start mijn beurt</button>
+        </div>
+
+        <!-- ===================================================== turn -->
+        <ng-container *ngIf="revealed && !over">
+            <div class="hand-block" *ngFor="let t of others">
+                <div class="who">Kaarten van <b>{{ game.players[t].name }}</b></div>
+                <div class="hand">
+                    <div class="slot" *ngFor="let h of game.players[t].hand; let i = index">
+                        <div class="card face" [style.background]="hex(h.card.color)" [class.hl]="isHinted(t, i)"
+                             [class.last]="lastCopy(h.card)">
+                            <span class="pos">{{ i + 1 }}</span>
+                            <span class="v">{{ h.card.value }}</span>
+                            <span class="star">★</span>
+                        </div>
+                        <small class="knows">{{ knowsText(h) }}</small>
+                    </div>
+                </div>
+                <div class="hint-row">
+                    <button type="button" *ngFor="let c of colors; let ci = index" class="chip color"
+                            [style.background]="c.hex" [class.on]="hintActive(t, ci, undefined)"
+                            [disabled]="!hintAllowed(t, ci, undefined)" (click)="chooseHint(t, ci, undefined)"
+                            [attr.aria-label]="'Hint: ' + c.name">{{ c.name }}</button>
+                </div>
+                <div class="hint-row">
+                    <button type="button" *ngFor="let v of values" class="chip"
+                            [class.on]="hintActive(t, undefined, v)"
+                            [disabled]="!hintAllowed(t, undefined, v)" (click)="chooseHint(t, undefined, v)">{{ v }}</button>
+                </div>
+            </div>
+
+            <div class="hand-block own">
+                <div class="who">Jouw kaarten, <b>{{ me.name }}</b>&nbsp;<small>(tik een kaart aan)</small></div>
+                <div class="hand">
+                    <div class="slot" *ngFor="let h of me.hand; let i = index">
+                        <button type="button" class="card back" [style.background]="ownBg(h)"
+                                [class.known]="h.knowColor" [class.sel]="selectedOwn === i" (click)="selectOwn(i)">
+                            <span class="pos">{{ i + 1 }}</span>
+                            <span class="v">{{ h.knowValue ? h.card.value : '?' }}</span>
+                        </button>
+                        <small class="knows">{{ notText(h) }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actionbar">
+                <ng-container *ngIf="selectedOwn >= 0">
+                    <button type="button" class="primary" (click)="play()">Kaart {{ selectedOwn + 1 }} aanleggen</button>
+                    <button type="button" (click)="discard()" [disabled]="!canDiscard">
+                        Kaart {{ selectedOwn + 1 }} afleggen
+                        <small *ngIf="!canDiscard">(fluisteringen vol)</small>
+                    </button>
+                </ng-container>
+                <ng-container *ngIf="hint">
+                    <button type="button" class="primary" (click)="giveHint()">{{ hintText }}</button>
+                </ng-container>
+                <p class="muted" *ngIf="selectedOwn < 0 && !hint">
+                    Kies een eigen kaart om aan te leggen of af te leggen,
+                    of kies een kleur of getal om een hint te fluisteren
+                    <ng-container *ngIf="!game.whispers"> (geen fluisteringen meer: eerst afleggen)</ng-container>.
+                </p>
+            </div>
+        </ng-container>
+
+        <!-- ===================================================== end -->
+        <div class="end" *ngIf="over">
+            <h2>{{ score }} van {{ maxScore }} sterren</h2>
+            <p>{{ verdict }}</p>
+            <p class="last muted">{{ game.last }}</p>
+            <div class="hand-block" *ngFor="let p of game.players">
+                <div class="who">Kaarten van <b>{{ p.name }}</b></div>
+                <div class="hand">
+                    <div class="slot" *ngFor="let h of p.hand">
+                        <div class="card face" [style.background]="hex(h.card.color)">
+                            <span class="v">{{ h.card.value }}</span><span class="star">★</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="primary big" (click)="quit()">Nieuw spel</button>
+        </div>
+
+        <div class="footer-links">
+            <button type="button" class="link" (click)="showRules = !showRules">{{ showRules ? 'Spelregels verbergen' : 'Spelregels' }}</button>
+            <button type="button" class="link" (click)="quit()" *ngIf="!over">Stoppen</button>
+        </div>
+        <ng-container *ngIf="showRules"><ng-container *ngTemplateOutlet="rulesTpl"></ng-container></ng-container>
+    </ng-container>
+
+    <ng-template #rulesTpl>
+        <div class="rules">
+            <h3>Het idee</h3>
+            <p>Er zijn vijf sterrenbeelden: rood, geel, groen, blauw en paars. Van elk maken jullie samen een rij van
+                1 tot en met 5, in de goede volgorde. Maar je houdt je kaarten als het ware omgekeerd vast:
+                je ziet de kaarten van de ander, niet die van jezelf.</p>
+
+            <h3>Jouw beurt: kies één van drie</h3>
+            <ul>
+                <li><b>Fluisteren</b> (kost 1 fluistering): vertel de ander óf een kleur óf een getal, en wijs alle kaarten
+                    aan die daarbij horen. Bijvoorbeeld: “kaart 2 en 4 zijn blauw”. Het spel onthoudt dat voor je.</li>
+                <li><b>Aanleggen</b>: speel een eigen kaart. Past die op een sterrenbeeld (de volgende in de rij), dan ligt
+                    hij goed. Past hij niet, dan schuift er een wolk voor de sterren.</li>
+                <li><b>Afleggen</b>: gooi een eigen kaart weg en krijg een fluistering terug (maximaal {{ maxWhispers }}).</li>
+            </ul>
+            <p>Na aanleggen of afleggen trek je meteen een nieuwe kaart.</p>
+
+            <h3>Einde</h3>
+            <ul>
+                <li>Bij {{ maxClouds }} wolken is de hemel dicht en is het spel voorbij.</li>
+                <li>Is de stapel op, dan krijgt iedereen nog één beurt.</li>
+                <li>Alle vijf de sterrenbeelden compleet? Dan hebben jullie perfect gespeeld: {{ maxScore }} sterren.</li>
+            </ul>
+
+            <h3>Goed om te weten</h3>
+            <ul>
+                <li>Van elke kleur zijn er drie 1’en, twee 2’en, 3’en en 4’en, en maar één 5. Gooi een 5 dus nooit weg.</li>
+                <li>Een kaart met een gouden rand is de laatste van zijn soort: die mag niet weg.</li>
+                <li>Een compleet sterrenbeeld (de 5 gelegd) levert een fluistering op.</li>
+                <li>Onder elk sterrenbeeld zie je welke kaarten al afgelegd zijn.</li>
+                <li>Overleggen buiten de hints om is niet de bedoeling. Juist dat maakt het spannend.</li>
+            </ul>
+        </div>
+    </ng-template>
+</div>

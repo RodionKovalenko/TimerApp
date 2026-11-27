@@ -1,0 +1,403 @@
+:host {
+  --bg: #101629;
+  --panel: #1a2340;
+  --ink: #eef1fa;
+  --muted: #9aa5c4;
+  --line: #2c3760;
+  --accent: #f0c24a;
+  display: block;
+  min-height: 100vh;
+  padding: 72px 12px 32px;
+  box-sizing: border-box;
+  background: radial-gradient(circle at 20% 10%, #1d2850 0, var(--bg) 60%);
+  color: var(--ink);
+  font: 15px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.sp {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.primary {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #1b1b1b !important;
+  font-weight: 600;
+}
+
+.big {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.link {
+  background: none;
+  border: 0;
+  color: var(--accent);
+  padding: 8px 4px;
+}
+
+/* ---------------------------------------------------------- setup */
+
+.setup h1 {
+  font-size: 1.8rem;
+  margin: 8px 0;
+}
+
+.lead {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.field {
+  margin: 14px 0;
+}
+
+.field .label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+}
+
+.seg {
+  display: flex;
+  gap: 6px;
+}
+
+.seg button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.seg button.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1b1b1b;
+}
+
+/* ---------------------------------------------------------- board */
+
+.board,
+.hand-block,
+.curtain,
+.end,
+.rules {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.tokens {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tokens > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.tokens small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.tokens b {
+  font-size: 18px;
+}
+
+.pips {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  min-height: 20px;
+}
+
+.pip.whisper {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid var(--muted);
+}
+
+.pip.whisper.on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.cloud {
+  font-size: 18px;
+  color: var(--line);
+}
+
+.cloud.on {
+  color: #cfd6e6;
+}
+
+.stacks {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dis {
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 15px;
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.final {
+  text-align: center;
+  color: var(--accent);
+  margin: 10px 0 0;
+}
+
+/* ---------------------------------------------------------- cards */
+
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 64px;
+  aspect-ratio: 5 / 7;
+  min-height: 70px;
+  border-radius: 9px;
+  border: 2px solid rgba(255, 255, 255, .25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .35);
+}
+
+.card .v {
+  font-size: 26px;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .4);
+}
+
+.card .star {
+  position: absolute;
+  bottom: 3px;
+  right: 6px;
+  font-size: 12px;
+  opacity: .8;
+}
+
+.card .pos {
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  font-size: 11px;
+  opacity: .85;
+}
+
+.card.empty {
+  opacity: .35;
+}
+
+.card.hl {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  transform: translateY(-4px);
+}
+
+.card.last {
+  border-color: #ffd75e;
+  box-shadow: 0 0 0 2px #ffd75e, 0 4px 10px rgba(0, 0, 0, .35);
+}
+
+.card.back {
+  background: repeating-linear-gradient(45deg, #2a355e, #2a355e 6px, #243052 6px, #243052 12px);
+  padding: 0;
+}
+
+.card.back.sel {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  transform: translateY(-4px);
+}
+
+/* ---------------------------------------------------------- hands */
+
+.who {
+  margin-bottom: 8px;
+}
+
+.who small {
+  color: var(--muted);
+}
+
+.hand {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  justify-items: center;
+}
+
+.slot {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.knows {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  min-height: 14px;
+  line-height: 1.2;
+}
+
+.hint-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  flex: 1;
+  min-width: 44px;
+  padding: 8px 4px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-size: 13px;
+}
+
+.chip.color {
+  color: #fff;
+  border-color: transparent;
+}
+
+.chip:disabled {
+  opacity: .25;
+}
+
+.chip.on {
+  outline: 3px solid #fff;
+  outline-offset: 1px;
+}
+
+.actionbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.actionbar button {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.actionbar button:disabled {
+  opacity: .5;
+}
+
+/* ---------------------------------------------------------- screens */
+
+.curtain,
+.end {
+  text-align: center;
+  padding: 22px 16px;
+}
+
+.curtain h2,
+.end h2 {
+  margin: 6px 0 10px;
+}
+
+.curtain p {
+  line-height: 1.5;
+}
+
+.last {
+  background: rgba(240, 194, 74, .12);
+  border-radius: 10px;
+  padding: 10px;
+  margin: 0 0 8px;
+}
+
+.end .hand-block {
+  text-align: left;
+  background: transparent;
+}
+
+.footer-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.rules {
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.rules h3 {
+  font-size: 15px;
+  margin: 12px 0 4px;
+}
+
+.rules ul {
+  padding-left: 20px;
+  margin: 4px 0;
+}
